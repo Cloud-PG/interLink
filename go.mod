@@ -1,12 +1,11 @@
-module github.com/interTwin-eu/interLink
+module github.com/cloud-pg/interlink
 
-go 1.19
+go 1.18
 
 require (
 	contrib.go.opencensus.io/exporter/ocagent v0.5.0
 	github.com/CARV-ICS-FORTH/knoc v0.0.0-20230201071611-e1c17e3b6ae6
 	github.com/containerd/containerd v1.0.2
-	github.com/sfreiberg/simplessh v0.0.0-20180301191542-495cbb862a9c
 	github.com/sirupsen/logrus v1.4.2
 	github.com/virtual-kubelet/node-cli v0.1.2
 	github.com/virtual-kubelet/virtual-kubelet v1.2.0
@@ -40,6 +39,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/sftp v1.13.0 // indirect
+	github.com/sfreiberg/simplessh v0.0.0-20180301191542-495cbb862a9c // indirect
 	github.com/spf13/cobra v0.0.5 // indirect
 	github.com/spf13/pflag v1.0.3 // indirect
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
