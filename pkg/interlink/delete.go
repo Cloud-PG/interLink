@@ -27,8 +27,8 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("1st Layer: forwarding DELETE to 2nd Layer")
 	returnValue, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("Deleted container " + string(returnValue))
 
 	w.Write(returnValue)
 }

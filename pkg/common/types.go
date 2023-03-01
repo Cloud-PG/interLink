@@ -21,5 +21,5 @@ type StatusRequest struct {
 }
 
 type CreateRequest struct {
-	v1.Pod
+	v1.Container
 }

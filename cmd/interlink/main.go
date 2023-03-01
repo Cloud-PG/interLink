@@ -5,17 +5,7 @@ import (
 	"net/http"
 
 	"github.com/cloud-pg/interlink/pkg/interlink"
-
-	v1 "k8s.io/api/core/v1"
 )
-
-type statusRequest struct {
-	Pods []jsonRequest `json:"pods"`
-}
-
-type jsonRequest struct {
-	v1.Pod
-}
 
 func main() {
 

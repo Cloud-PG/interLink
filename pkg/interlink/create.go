@@ -27,8 +27,8 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("1st Layer: forwarding POST to 2nd Layer")
 	returnValue, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(returnValue))
 
 	w.Write(returnValue)
 }

@@ -26,8 +26,8 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("1st Layer: forwarding GET to 2nd Layer")
 	returnValue, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("Returned from 2nd layer: " + string(returnValue))
 
 	w.Write(returnValue)
 }

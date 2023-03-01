@@ -83,18 +83,18 @@ func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, 
 
 	switch mode {
 	case common.CREATE:
-		//err = PrepareContainerData(p, ctx, client, instance_name, container, pod)
+		//v1.Pod used only for secrets and volumes management; TO BE IMPLEMENTED
 		if err != nil {
 			return err
 		}
 
-		jsonVar = types.CreateRequest{*pod}
+		jsonVar = types.CreateRequest{container}
 		jsonBytes, _ := json.Marshal(jsonVar)
 		createRequest(jsonBytes)
 		break
 
 	case common.DELETE:
-		request := types.PodUID{UID: string(pod.UID)}
+		request := types.PodUID{UID: string(container.Name)}
 		jsonBytes, _ := json.Marshal(request)
 		returnVal := deleteRequest(jsonBytes)
 		log.G(ctx).Infof(string(returnVal))
@@ -118,7 +118,10 @@ func checkPodsStatus(p *VirtualKubeletProvider, ctx context.Context) {
 	var podsList types.StatusRequest
 
 	for _, pod := range p.pods {
-		podsList.PodUIDs = append(podsList.PodUIDs, types.PodUID{UID: string(pod.UID)})
+		for _, container := range pod.Spec.Containers {
+			podsList.PodUIDs = append(podsList.PodUIDs, types.PodUID{UID: container.Name})
+		}
+
 	}
 
 	jsonBytes, err := json.Marshal(podsList)
