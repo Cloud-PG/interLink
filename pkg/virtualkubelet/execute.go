@@ -53,7 +53,7 @@ func deleteRequest(jsonBody []byte) []byte {
 	return returnValue
 }
 
-func getStatus(jsonBody []byte) []byte {
+func statusRequest(jsonBody []byte) []byte {
 	var request types.StatusRequest
 	var returnValue []byte
 	var response []types.StatusResponse
@@ -130,6 +130,6 @@ func checkPodsStatus(p *VirtualKubeletProvider, ctx context.Context) {
 		log.L.Error(err)
 	}
 
-	returnVal = getStatus(jsonBytes)
+	returnVal = statusRequest(jsonBytes)
 	log.G(ctx).Infof(string(returnVal))
 }
