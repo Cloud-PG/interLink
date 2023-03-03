@@ -1,7 +1,9 @@
 # Overview
 This project aims to enable a communication between a Kubernetes VitualKubelet and a container manager, like for example Docker.
 The project is based on KNoC, for reference, check https://github.com/CARV-ICS-FORTH/knoc
-Everything is thought to be modular and it's divided in different layers. These layers are summarized in the following drawing ![drawing](imgs/interLink%20schematic.svg "InterLink schematic"):
+Everything is thought to be modular and it's divided in different layers. These layers are summarized in the following drawing 
+
+![drawing](imgs/interLink%20schematic.svg "InterLink schematic"):
 
 # Components
 - Virtual kubelet:
