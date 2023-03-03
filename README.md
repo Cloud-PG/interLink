@@ -1,10 +1,10 @@
-# overview
+# Overview
 This project aims to enable a communication between a Kubernetes VitualKubelet and a container manager, like for example Docker.
-The project is based on KNOC, for reference, check 
+The project is based on KNoC, for reference, check https://github.com/CARV-ICS-FORTH/knoc
 Everything is thought to be modular and it's divided in different layers. These layers are summarized in the following drawing:
 https://excalidraw.com/#room=27d4efeab01b19377b97,i-2RMSKaE6JMTT0QkeEfEQ
 
-# components
+# Components
 - Kubernetes API server: 
 That's your local K8S instance running on your server. K8S talks to the next layer through its own API
 
@@ -17,10 +17,11 @@ This is the layer managing the communication with the plug-ins. We began impleme
 - Sidecars
 Basically, that's the name we refer to each plug-in talking with the InterLink layer. Each Sidecar is inependent and separately talks with the InterLink layer.
 
-# usage
+# Build and Usage
 Requirements: 
 - Golang >= 1.18.9 (might work with older version, but didn't test)
 - A working Kubernetes instance
+- An already set up KNoC environment
 
 build the 3 components by running:
 ```
@@ -34,7 +35,25 @@ Give exec permissions and run all of them, then test by submitting a YAML to you
 kubectl apply -f examples/busyecho_k8s.yaml
 ```
 
-# interlink
+A quick start-up command for the VK executable is given by the following example:
+```
+./bin/vk -- --nodename *A-NAME* --provider knoc --provider-config ./scripts/cfg.json --startup-timeout 10s --klog.v "2" --kubeconfig *PATH-TO-KUBECONFIG.YAML* --klog.logtostderr --log-level debug
+```
 
-export KUBERNETES_SERVICE_HOST=127.0.0.1
-export KUBERNETES_SERVICE_PORT=2345 
+# Debug
+To debug, we found out Delve debugger is pretty handful. To run a debug session, install delve debugger by running;
+```
+go install github.com/go-delve/delve/cmd/dlv@latest
+```
+
+Then, assuming $COMMAND is the normal string you would use to run your executable, run the following:
+```
+dlv debug $COMMAND
+```
+
+For example, based on the previous example:
+```
+dlv debug . -- --nodename *A-NAME* --provider knoc --provider-config ./scripts/cfg.json --startup-timeout 10s --klog.v "2" --kubeconfig *PATH-TO-KUBECONFIG.YAML* --klog.logtostderr --log-level debug
+```
+
+The only difference is you have to pass the path to your main and not the path to your executable
