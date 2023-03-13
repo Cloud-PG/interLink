@@ -19,7 +19,7 @@ func createRequest(jsonBody []byte) {
 	json.Unmarshal(jsonBody, &request)
 
 	reader := bytes.NewReader(jsonBody)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:3000/create", reader)
+	req, err := http.NewRequest(http.MethodPost, types.InterLinkConfigInst.Interlinkurl+":"+types.InterLinkConfigInst.Interlinkport+"/create", reader)
 	if err != nil {
 		log.L.Error(err)
 	}
@@ -36,7 +36,7 @@ func deleteRequest(jsonBody []byte) []byte {
 	json.Unmarshal(jsonBody, &request)
 
 	reader := bytes.NewReader(jsonBody)
-	req, err := http.NewRequest(http.MethodDelete, "http://localhost:3000/delete", reader)
+	req, err := http.NewRequest(http.MethodDelete, types.InterLinkConfigInst.Interlinkurl+":"+types.InterLinkConfigInst.Interlinkport+"/delete", reader)
 	if err != nil {
 		log.L.Error(err)
 	}
@@ -62,7 +62,7 @@ func statusRequest(jsonBody []byte) []byte {
 	json.Unmarshal(jsonBody, &request)
 
 	reader := bytes.NewReader(jsonBody)
-	req, err := http.NewRequest(http.MethodGet, "http://localhost:3000/status", reader)
+	req, err := http.NewRequest(http.MethodGet, types.InterLinkConfigInst.Interlinkurl+":"+types.InterLinkConfigInst.Interlinkport+"/status", reader)
 	if err != nil {
 		log.L.Error(err)
 	}
@@ -88,7 +88,7 @@ func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, 
 			return err
 		}
 
-		jsonVar = types.CreateRequest{container}
+		jsonVar = types.CreateRequest{Container: container, Pod: *pod}
 		jsonBytes, _ := json.Marshal(jsonVar)
 		createRequest(jsonBytes)
 		break
@@ -103,9 +103,7 @@ func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, 
 			return err
 		}
 		break
-
 	}
-
 	return nil
 }
 

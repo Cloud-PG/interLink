@@ -1,20 +1,69 @@
 package main
 
 import (
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
+	types "github.com/cloud-pg/interlink/pkg/common"
 	"github.com/cloud-pg/interlink/pkg/interlink"
+	"gopkg.in/yaml.v3"
 )
 
+var Url string
+
 func main() {
+
+	yfile, err := ioutil.ReadFile("../config/InterLinkConfig.yaml")
+	yaml.Unmarshal(yfile, &types.InterLinkConfigInst)
+
+	if os.Getenv("INTERLINKURL") != "" {
+		types.InterLinkConfigInst.Interlinkurl = os.Getenv("INTERLINKURL")
+	}
+
+	if os.Getenv("SIDECARURL") != "" {
+		types.InterLinkConfigInst.Sidecarurl = os.Getenv("SIDECARURL")
+	}
+
+	if os.Getenv("INTERLINKPORT") != "" {
+		types.InterLinkConfigInst.Interlinkport = os.Getenv("INTERLINKPORT")
+	}
+
+	if os.Getenv("SIDECARSERVICE") != "" {
+		if os.Getenv("SIDECARSERVICE") != "docker" && os.Getenv("SIDECARSERVICE") != "slurm" {
+			fmt.Println("export SIDECARSERVICE as docker or slurm")
+			return
+		}
+		types.InterLinkConfigInst.Service = os.Getenv("SIDECARSERVICE")
+	}
+
+	if os.Getenv("SIDECARPORT") != "" && os.Getenv("SIDECARSERVICE") == "" {
+		types.InterLinkConfigInst.Sidecarport = os.Getenv("SIDECARPORT")
+		types.InterLinkConfigInst.Service = "Custom Service"
+	} else {
+		switch types.InterLinkConfigInst.Service {
+		case "docker":
+			types.InterLinkConfigInst.Sidecarport = "4000"
+
+		case "slurm":
+			types.InterLinkConfigInst.Sidecarport = "4001"
+
+		default:
+			fmt.Println("Define in InterLinkConfig.yaml one service between docker and slurm")
+			return
+		}
+	}
 
 	mutex := http.NewServeMux()
 	mutex.HandleFunc("/status", interlink.StatusHandler)
 	mutex.HandleFunc("/create", interlink.CreateHandler)
 	mutex.HandleFunc("/delete", interlink.DeleteHandler)
 
-	err := http.ListenAndServe(":3000", mutex)
+	fmt.Println(types.InterLinkConfigInst)
+
+	err = http.ListenAndServe(":"+types.InterLinkConfigInst.Interlinkport, mutex)
 	if err != nil {
 		log.Fatal(err)
 	}

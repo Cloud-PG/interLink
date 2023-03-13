@@ -1,4 +1,4 @@
-package mock
+package docker
 
 import (
 	"encoding/json"
@@ -55,14 +55,14 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 	var req types.CreateRequest
 	json.Unmarshal(bodyBytes, &req)
 
-	cmd := []string{"run", "-d", "--name", req.Name}
-	for _, args := range req.Args {
+	cmd := []string{"run", "-d", "--name", req.Container.Name}
+	for _, args := range req.Container.Args {
 		cmd = append(cmd, args)
 	}
 
-	cmd = append(cmd, req.Image)
+	cmd = append(cmd, req.Container.Image)
 
-	for _, command := range req.Command {
+	for _, command := range req.Container.Command {
 		cmd = append(cmd, command)
 	}
 
@@ -79,7 +79,7 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	shell = exec.ExecTask{
 		Command: "docker",
-		Args:    []string{"ps", "-aqf", "name=^" + req.Name + "$"},
+		Args:    []string{"ps", "-aqf", "name=^" + req.Container.Name + "$"},
 		Shell:   true,
 	}
 

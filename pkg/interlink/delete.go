@@ -6,18 +6,18 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	types "github.com/cloud-pg/interlink/pkg/common"
 )
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
-	//call to docker delete container
-
 	bodyBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	reader := bytes.NewReader(bodyBytes)
-	req, err := http.NewRequest(http.MethodGet, "http://localhost:4000/delete", reader)
+	req, err := http.NewRequest(http.MethodGet, types.InterLinkConfigInst.Sidecarurl+":"+types.InterLinkConfigInst.Sidecarport+"/delete", reader)
 	if err != nil {
 		log.Fatal(err)
 	}

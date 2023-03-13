@@ -1,6 +1,8 @@
 package common
 
-import v1 "k8s.io/api/core/v1"
+import (
+	v1 "k8s.io/api/core/v1"
+)
 
 type PodUID struct {
 	UID string `json:"podUID"`
@@ -21,5 +23,16 @@ type StatusRequest struct {
 }
 
 type CreateRequest struct {
-	v1.Container
+	Container v1.Container
+	Pod       v1.Pod
 }
+
+type InterLinkConfig struct {
+	Interlinkurl  string
+	Sidecarurl    string
+	Interlinkport string
+	Sidecarport   string
+	Service       string
+}
+
+var InterLinkConfigInst InterLinkConfig
