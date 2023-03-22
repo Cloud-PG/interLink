@@ -2,7 +2,6 @@ package common
 
 import (
 	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type PodUID struct {
@@ -25,7 +24,6 @@ type StatusRequest struct {
 
 type CreateRequest struct {
 	Container v1.Container
-	Metadata  metav1.ObjectMeta
 	Pod       v1.Pod
 }
 

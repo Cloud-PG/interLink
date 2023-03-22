@@ -27,7 +27,7 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(bodyBytes, &req)
 
 	container := req.Container
-	metadata := req.Metadata
+	metadata := req.Pod.ObjectMeta
 
 	log.Print("create_container")
 	commstr1 := []string{"singularity", "exec"}
@@ -57,11 +57,11 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 	singularity_command = append(singularity_command, container.Command...)
 	singularity_command = append(singularity_command, container.Args...)
 
-	path := produce_slurm_script(c, singularity_command)
-	out := slurm_batch_submit(path, c)
-	handle_jid(c, out)
-	log.Debugln(singularity_command)
-	log.Infoln(out)
+	path := produce_slurm_script(container, metadata, singularity_command)
+	out := slurm_batch_submit(path)
+	handle_jid(container, out)
+	log.Print(singularity_command)
+	log.Print(out)
 }
 
 func StopHandler(w http.ResponseWriter, r *http.Request) {
