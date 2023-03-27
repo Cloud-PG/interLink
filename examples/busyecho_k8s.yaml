@@ -3,13 +3,13 @@ kind: Pod
 metadata:
   name: testvk
   annotations:
-    slurm-job.knoc.io/flags: "-A INF22_lhc_0  --job-name=TEST_KNOC -p m100_usr_prod -t 1440 --gres=\"gpu:0\" --cpus-per-task=128"
+    slurm-job.knoc.io/flags: "-A INF22_lhc_0  --job-name=TEST_KNOC -p m100_usr_prod -t 1440 --gres=\"gpu:0\" --cpus-per-task=1"
 spec:
   restartPolicy: OnFailure 
   containers:
   - image: busybox
     command:
-      - sleep 600
+      - /m100/home/userexternal/gsurace0/script.sh
     imagePullPolicy: Always
     name: busyecho
   dnsPolicy: ClusterFirst

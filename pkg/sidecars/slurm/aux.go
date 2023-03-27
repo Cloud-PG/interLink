@@ -1,11 +1,13 @@
 package slurm
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
@@ -16,8 +18,8 @@ const (
 	//SUBMIT  = 0
 	//STOP    = 1
 	//UNKNOWN = 2
-	SBATCH = "/opt/slurm/current/bin/sbatch"
-	//SCANCEL = "/opt/slurm/current/bin/sbatch"
+	SBATCH  = "/opt/slurm/current/bin/sbatch"
+	SCANCEL = "/opt/slurm/current/bin/sbatch"
 )
 
 func prepare_envs(container v1.Container) []string {
@@ -107,7 +109,8 @@ func slurm_batch_submit(path string) string {
 	var err error
 	output, err = exec.Command(SBATCH, path).Output()
 	if err != nil {
-		log.Fatalln("Could not run sbatch. " + err.Error())
+		//log.Fatalln("Could not run sbatch. " + err.Error())
+		log.Println("Could not run sbatch. " + err.Error())
 	}
 	return string(output)
 
@@ -118,8 +121,29 @@ func handle_jid(container v1.Container, output string) {
 	jid := r.FindStringSubmatch(output)
 	f, err := os.Create(".knoc/" + container.Name + ".jid")
 	if err != nil {
-		log.Fatalln("Cant create jid_file")
+		log.Panicln("Cant create jid_file")
 	}
 	f.WriteString(jid[1])
 	f.Close()
+}
+
+func delete_container(container v1.Container) {
+	data, err := os.ReadFile(".knoc/" + container.Name + ".jid")
+	if err != nil {
+		log.Fatalln("Can't find job id of container")
+	}
+	jid, err := strconv.Atoi(string(data))
+	if err != nil {
+		log.Fatalln("Can't find job id of container")
+	}
+	_, err = exec.Command(SCANCEL, fmt.Sprint(jid)).Output()
+	if err != nil {
+		log.Fatalln("Could not delete job", jid)
+	}
+	exec.Command("rm", "-f ", ".knoc/"+container.Name+".out")
+	exec.Command("rm", "-f ", ".knoc/"+container.Name+".err")
+	exec.Command("rm", "-f ", ".knoc/"+container.Name+".status")
+	exec.Command("rm", "-f ", ".knoc/"+container.Name+".jid")
+	exec.Command("rm", "-rf", " .knoc/"+container.Name)
+	log.Println("Delete job", jid)
 }

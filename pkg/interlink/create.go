@@ -16,8 +16,20 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	var req *http.Request
 	reader := bytes.NewReader(bodyBytes)
-	req, err := http.NewRequest(http.MethodPost, types.InterLinkConfigInst.Sidecarurl+":"+types.InterLinkConfigInst.Sidecarport+"/create", reader)
+
+	switch types.InterLinkConfigInst.Service {
+	case "docker":
+		req, err = http.NewRequest(http.MethodPost, types.InterLinkConfigInst.Sidecarurl+":"+types.InterLinkConfigInst.Sidecarport+"/create", reader)
+
+	case "slurm":
+		req, err = http.NewRequest(http.MethodPost, types.InterLinkConfigInst.Sidecarurl+":"+types.InterLinkConfigInst.Sidecarport+"/submit", reader)
+
+	default:
+		break
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}

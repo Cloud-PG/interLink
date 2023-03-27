@@ -17,9 +17,12 @@ import (
 func createRequest(jsonBody []byte) {
 	request := types.CreateRequest{}
 	json.Unmarshal(jsonBody, &request)
+	var req *http.Request
+	var err error
 
 	reader := bytes.NewReader(jsonBody)
-	req, err := http.NewRequest(http.MethodPost, types.InterLinkConfigInst.Interlinkurl+":"+types.InterLinkConfigInst.Interlinkport+"/create", reader)
+	req, err = http.NewRequest(http.MethodPost, types.InterLinkConfigInst.Interlinkurl+":"+types.InterLinkConfigInst.Interlinkport+"/create", reader)
+
 	if err != nil {
 		log.L.Error(err)
 	}
@@ -31,9 +34,7 @@ func createRequest(jsonBody []byte) {
 }
 
 func deleteRequest(jsonBody []byte) []byte {
-	request := types.CreateRequest{}
 	var returnValue, _ = json.Marshal(types.PodStatus{PodStatus: "UNDEFINED"})
-	json.Unmarshal(jsonBody, &request)
 
 	reader := bytes.NewReader(jsonBody)
 	req, err := http.NewRequest(http.MethodDelete, types.InterLinkConfigInst.Interlinkurl+":"+types.InterLinkConfigInst.Interlinkport+"/delete", reader)
@@ -94,8 +95,8 @@ func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, 
 		break
 
 	case common.DELETE:
-		request := types.PodUID{UID: string(container.Name)}
-		jsonBytes, _ := json.Marshal(request)
+		//request := types.PodUID{UID: string(container.Name)}
+		jsonBytes, _ := json.Marshal(container)
 		returnVal := deleteRequest(jsonBytes)
 		log.G(ctx).Infof(string(returnVal))
 

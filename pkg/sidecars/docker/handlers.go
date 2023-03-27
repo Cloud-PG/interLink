@@ -9,6 +9,7 @@ import (
 
 	exec "github.com/alexellis/go-execute/pkg/v1"
 	types "github.com/cloud-pg/interlink/pkg/common"
+	v1 "k8s.io/api/core/v1"
 )
 
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
@@ -97,10 +98,10 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	var req types.PodUID
+	var req v1.Container
 	json.Unmarshal(bodyBytes, &req)
 
-	cmd := []string{"stop", req.UID}
+	cmd := []string{"stop", req.Name}
 	shell := exec.ExecTask{
 		Command: "docker",
 		Args:    cmd,
