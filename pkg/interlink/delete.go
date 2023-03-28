@@ -19,7 +19,7 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	var req *http.Request
 	reader := bytes.NewReader(bodyBytes)
 
-	switch types.InterLinkConfigInst.Service {
+	switch types.InterLinkConfigInst.Sidecarservice {
 	case "docker":
 		req, err = http.NewRequest(http.MethodPost, types.InterLinkConfigInst.Sidecarurl+":"+types.InterLinkConfigInst.Sidecarport+"/delete", reader)
 

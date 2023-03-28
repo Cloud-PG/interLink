@@ -1,4 +1,4 @@
 interlinkurl: "http://localhost"
 sidecarurl: "http://localhost"
 interlinkport: "3000"
-service: "docker" #docker, slurm
+sidecarservice: "slurm" #docker, slurm

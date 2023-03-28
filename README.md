@@ -28,6 +28,20 @@ go build -o bin/interlink cmd/interlink/main.go
 go build -o bin/docker-sd cmd/sidecars/docker/main.go
 ```
 Three output files called vk, interlink and docker-sd will be created within the bin folder.
+
+Remember to correctly set-up Environment Variables (or the InterLinkConfig.yaml file. ENVS have priority over config file) according to the service you want to use!
+
+```
+List of Environment Variables:
+$INTERLINKURL -> the URL to contact the InterLink executable. No need to specify a port here
+$INTERLINKPORT -> the InterLink listening port. Default is 3000
+$SIDECARURL -> the URL to allow InterLink to communicate with the Sidecar module (docker, slurm, etc). No need to specify port here
+$SIDECARPORT -> the Sidecar listening port. Docker default is 4000, Slurm default is 4001
+$SIDECARSERVICE -> can be "docker" or "slurm" only (for the moment). If SIDECARPORT is not set, will set Sidecar Port in the code to default settings.
+```
+
+ENVS and config naming matches, so you will just find the config names to be the lowercases of the ENVS naming
+
 Give exec permissions and run all of them, then test by submitting a YAML to your K8S cluster. For example, you can run
 ```
 kubectl apply -f examples/busyecho_k8s.yaml
@@ -37,6 +51,8 @@ A quick start-up command for the VK executable is given by the following example
 ```
 ./bin/vk -- --nodename *A-NAME* --provider knoc --provider-config ./scripts/cfg.json --startup-timeout 10s --klog.v "2" --kubeconfig *PATH-TO-KUBECONFIG.YAML* --klog.logtostderr --log-level debug
 ```
+
+For the other executables, you can just normally run them.
 
 # Debug
 To debug, we found out Delve debugger is pretty handful. To run a debug session, install delve debugger by running;
@@ -51,7 +67,7 @@ dlv debug $COMMAND
 
 For example, based on the previous example:
 ```
-dlv debug . -- --nodename *A-NAME* --provider knoc --provider-config ./scripts/cfg.json --startup-timeout 10s --klog.v "2" --kubeconfig *PATH-TO-KUBECONFIG.YAML* --klog.logtostderr --log-level debug
+dlv debug . -- --nodename *A-NAME* --provider knoc --provider-config ./config/cfg.json --startup-timeout 10s --klog.v "2" --kubeconfig *PATH-TO-KUBECONFIG.YAML* --klog.logtostderr --log-level debug
 ```
 
 The only difference is you have to pass the path to your main and not the path to your executable

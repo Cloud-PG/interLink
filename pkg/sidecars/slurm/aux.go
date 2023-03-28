@@ -107,7 +107,7 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 func slurm_batch_submit(path string) string {
 	var output []byte
 	var err error
-	output, err = exec.Command(SBATCH, path).Output()
+	output, err = exec.Command(SBATCH, path).CombinedOutput()
 	if err != nil {
 		//log.Fatalln("Could not run sbatch. " + err.Error())
 		log.Println("Could not run sbatch. " + err.Error())

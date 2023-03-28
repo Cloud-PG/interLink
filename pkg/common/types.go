@@ -28,11 +28,11 @@ type CreateRequest struct {
 }
 
 type InterLinkConfig struct {
-	Interlinkurl  string
-	Sidecarurl    string
-	Interlinkport string
-	Sidecarport   string
-	Service       string
+	Interlinkurl   string
+	Sidecarurl     string
+	Interlinkport  string
+	Sidecarport    string
+	Sidecarservice string
 }
 
 var InterLinkConfigInst InterLinkConfig
