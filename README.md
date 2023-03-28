@@ -26,8 +26,9 @@ Build the 3 components by running:
 go build -o bin/vk
 go build -o bin/interlink cmd/interlink/main.go
 go build -o bin/docker-sd cmd/sidecars/docker/main.go
+go build -o bin/slurm-sd cmd/sidecars/slurm/main.go
 ```
-Three output files called vk, interlink and docker-sd will be created within the bin folder.
+Four output files called vk, interlink, docker-sd and slurm-sd will be created within the bin folder.
 
 Remember to correctly set-up Environment Variables (or the InterLinkConfig.yaml file. ENVS have priority over config file) according to the service you want to use!
 
