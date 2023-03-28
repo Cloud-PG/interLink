@@ -101,6 +101,9 @@ func loadConfig(providerConfig, nodeName string) (config VirtualKubeletConfig, e
 			return
 		}
 		types.InterLinkConfigInst.Sidecarservice = os.Getenv("SIDECARSERVICE")
+	} else if types.InterLinkConfigInst.Sidecarservice != "docker" && types.InterLinkConfigInst.Sidecarservice != "slurm" {
+		fmt.Println("Set \"docker\" or \"slurm\" in config file or export SIDECARSERVICE as ENV")
+		return
 	}
 
 	if os.Getenv("SIDECARPORT") != "" && os.Getenv("SIDECARSERVICE") == "" {

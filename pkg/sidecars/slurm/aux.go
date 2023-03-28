@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	exec2 "github.com/alexellis/go-execute/pkg/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -105,14 +106,30 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 }
 
 func slurm_batch_submit(path string) string {
-	var output []byte
-	var err error
-	output, err = exec.Command(SBATCH, path).CombinedOutput()
+	//var output []byte
+	//var err error
+
+	cmd := []string{path}
+	shell := exec2.ExecTask{
+		Command: "sbatch",
+		Args:    cmd,
+		Shell:   true,
+	}
+
+	execReturn, err := shell.Execute()
+	execReturn.Stdout = strings.ReplaceAll(execReturn.Stdout, "\n", "")
+
 	if err != nil {
 		//log.Fatalln("Could not run sbatch. " + err.Error())
 		log.Println("Could not run sbatch. " + err.Error())
 	}
-	return string(output)
+
+	/*output, err = exec.Command(SBATCH, path).CombinedOutput()
+	if err != nil {
+		//log.Fatalln("Could not run sbatch. " + err.Error())
+		log.Println("Could not run sbatch. " + err.Error())
+	}*/
+	return string(execReturn.Stdout)
 
 }
 
