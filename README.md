@@ -21,14 +21,11 @@ Requirements:
 - A working Kubernetes instance
 - An already set up KNoC environment
 
-Build the 3 components by running:
+Build the components by running:
 ```
-go build -o bin/vk
-go build -o bin/interlink cmd/interlink/main.go
-go build -o bin/docker-sd cmd/sidecars/docker/main.go
-go build -o bin/slurm-sd cmd/sidecars/slurm/main.go
+make all
 ```
-Four output files called vk, interlink, docker-sd and slurm-sd will be created within the bin folder.
+Output files be created within the bin folder.
 
 Remember to correctly set-up Environment Variables (or the InterLinkConfig.yaml file. ENVS have priority over config file) according to the service you want to use!
 

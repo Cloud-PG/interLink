@@ -36,14 +36,14 @@ func main() {
 			fmt.Println("export SIDECARSERVICE as docker or slurm")
 			return
 		}
-		types.InterLinkConfigInst.Service = os.Getenv("SIDECARSERVICE")
+		types.InterLinkConfigInst.Sidecarservice = os.Getenv("SIDECARSERVICE")
 	}
 
 	if os.Getenv("SIDECARPORT") != "" && os.Getenv("SIDECARSERVICE") == "" {
 		types.InterLinkConfigInst.Sidecarport = os.Getenv("SIDECARPORT")
-		types.InterLinkConfigInst.Service = "Custom Service"
+		types.InterLinkConfigInst.Sidecarservice = "Custom Service"
 	} else {
-		switch types.InterLinkConfigInst.Service {
+		switch types.InterLinkConfigInst.Sidecarservice {
 		case "docker":
 			types.InterLinkConfigInst.Sidecarport = "4000"
 
