@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  interlink:
+    image:  ghcr.io/dodas-ts/interlink:v2
+    restart: always
+    privileged: true
+    network_mode: "host"
+    volumes:
+    - type: bind
+      source: ./config
+      target: /etc/interlink
+    # healthcheck:
+    #   test: ["CMD", "/wn-check.sh"]
+    #   interval: 10s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 5s
+  interlink-plugin:
+    image: ghcr.io/dodas-ts/intertwin-plugin:docker-v1
+    restart: always
+    # healthcheck:
+    #   test: ["CMD", "/wn-check.sh"]
+    #   interval: 10s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 5s

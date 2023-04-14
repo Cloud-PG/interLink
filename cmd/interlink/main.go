@@ -16,7 +16,7 @@ var Url string
 
 func main() {
 
-	yfile, err := ioutil.ReadFile("../config/InterLinkConfig.yaml")
+	yfile, err := ioutil.ReadFile("/etc/interlink/InterLinkConfig.yaml")
 	yaml.Unmarshal(yfile, &types.InterLinkConfigInst)
 
 	if os.Getenv("INTERLINKURL") != "" {
