@@ -3,7 +3,6 @@ services:
   interlink:
     image:  ghcr.io/dodas-ts/interlink:v2
     restart: always
-    privileged: true
     network_mode: "host"
     volumes:
     - type: bind
@@ -16,8 +15,13 @@ services:
     #   retries: 3
     #   start_period: 5s
   interlink-plugin:
-    image: ghcr.io/dodas-ts/intertwin-plugin:docker-v1
+    image: ghcr.io/dodas-ts/intertwin-plugin:docker-v3
     restart: always
+    privileged: true
+    volumes:
+    - type: bind
+      source: /var/run/docker.sock:/var/run/docker.sock 
+      target: /var/run/docker.sock:/var/run/docker.sock 
     # healthcheck:
     #   test: ["CMD", "/wn-check.sh"]
     #   interval: 10s
