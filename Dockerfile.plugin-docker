@@ -8,7 +8,13 @@ RUN CGO_ENABLED=0 GOOS=linux go build -mod vendor -o bin/docker-plugin cmd/sidec
 
 
 # Deploy the application binary into a lean image
-FROM docker AS build-release-stage
+#FROM docker AS build-release-stage
+FROM ubuntu:20.04 AS build-release-stage
+
+RUN apt update --allow-insecure-repositories&& apt install -y curl
+
+RUN curl -fsSL https://get.docker.com -o get-docker.sh \
+    && sh get-docker.sh 
 
 WORKDIR /
 
