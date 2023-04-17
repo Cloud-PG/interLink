@@ -60,7 +60,7 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 	path := produce_slurm_script(container, metadata, singularity_command)
 	log.Println("Submitting Slurm job")
 	out := slurm_batch_submit(path)
-	//handle_jid(container, out)
+	handle_jid(container, out)
 	log.Print(out)
 	log.Println(path)
 

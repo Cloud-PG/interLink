@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	types "github.com/cloud-pg/interlink/pkg/common"
+	commonIL "github.com/cloud-pg/interlink/pkg/common"
 )
 
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +17,7 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	reader := bytes.NewReader(bodyBytes)
-	req, err := http.NewRequest(http.MethodGet, types.InterLinkConfigInst.Sidecarurl+":"+types.InterLinkConfigInst.Sidecarport+"/status", reader)
+	req, err := http.NewRequest(http.MethodGet, commonIL.InterLinkConfigInst.Sidecarurl+":"+commonIL.InterLinkConfigInst.Sidecarport+"/status", reader)
 	if err != nil {
 		log.Fatal(err)
 	}

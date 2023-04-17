@@ -8,20 +8,20 @@ import (
 	"net/http"
 
 	common "github.com/CARV-ICS-FORTH/knoc/common"
-	types "github.com/cloud-pg/interlink/pkg/common"
+	commonIL "github.com/cloud-pg/interlink/pkg/common"
 
 	"github.com/containerd/containerd/log"
 	v1 "k8s.io/api/core/v1"
 )
 
 func createRequest(jsonBody []byte) {
-	request := types.CreateRequest{}
+	request := commonIL.CreateRequest{}
 	json.Unmarshal(jsonBody, &request)
 	var req *http.Request
 	var err error
 
 	reader := bytes.NewReader(jsonBody)
-	req, err = http.NewRequest(http.MethodPost, types.InterLinkConfigInst.Interlinkurl+":"+types.InterLinkConfigInst.Interlinkport+"/create", reader)
+	req, err = http.NewRequest(http.MethodPost, commonIL.InterLinkConfigInst.Interlinkurl+":"+commonIL.InterLinkConfigInst.Interlinkport+"/create", reader)
 
 	if err != nil {
 		log.L.Error(err)
@@ -34,10 +34,10 @@ func createRequest(jsonBody []byte) {
 }
 
 func deleteRequest(jsonBody []byte) []byte {
-	var returnValue, _ = json.Marshal(types.PodStatus{PodStatus: "UNDEFINED"})
+	var returnValue, _ = json.Marshal(commonIL.PodStatus{PodStatus: "UNDEFINED"})
 
 	reader := bytes.NewReader(jsonBody)
-	req, err := http.NewRequest(http.MethodDelete, types.InterLinkConfigInst.Interlinkurl+":"+types.InterLinkConfigInst.Interlinkport+"/delete", reader)
+	req, err := http.NewRequest(http.MethodDelete, commonIL.InterLinkConfigInst.Interlinkurl+":"+commonIL.InterLinkConfigInst.Interlinkport+"/delete", reader)
 	if err != nil {
 		log.L.Error(err)
 	}
@@ -48,22 +48,22 @@ func deleteRequest(jsonBody []byte) []byte {
 	}
 
 	returnValue, _ = ioutil.ReadAll(resp.Body)
-	var response types.PodStatus
+	var response commonIL.PodStatus
 	json.Unmarshal(returnValue, &response)
 
 	return returnValue
 }
 
 func statusRequest(jsonBody []byte) []byte {
-	var request types.StatusRequest
+	var request commonIL.StatusRequest
 	var returnValue []byte
-	var response []types.StatusResponse
+	var response []commonIL.StatusResponse
 
 	returnValue, _ = json.Marshal(response)
 	json.Unmarshal(jsonBody, &request)
 
 	reader := bytes.NewReader(jsonBody)
-	req, err := http.NewRequest(http.MethodGet, types.InterLinkConfigInst.Interlinkurl+":"+types.InterLinkConfigInst.Interlinkport+"/status", reader)
+	req, err := http.NewRequest(http.MethodGet, commonIL.InterLinkConfigInst.Interlinkurl+":"+commonIL.InterLinkConfigInst.Interlinkport+"/status", reader)
 	if err != nil {
 		log.L.Error(err)
 	}
@@ -80,7 +80,7 @@ func statusRequest(jsonBody []byte) []byte {
 
 func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, imageLocation string, pod *v1.Pod, container v1.Container) error {
 	var err error
-	var jsonVar types.CreateRequest
+	var jsonVar commonIL.CreateRequest
 
 	switch mode {
 	case common.CREATE:
@@ -89,7 +89,7 @@ func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, 
 			return err
 		}
 
-		jsonVar = types.CreateRequest{Container: container, Pod: *pod}
+		jsonVar = commonIL.CreateRequest{Container: container, Pod: *pod}
 		jsonBytes, _ := json.Marshal(jsonVar)
 		createRequest(jsonBytes)
 		break
@@ -114,11 +114,11 @@ func checkPodsStatus(p *VirtualKubeletProvider, ctx context.Context) {
 	}
 	var jsonBytes []byte
 	var returnVal []byte
-	var podsList types.StatusRequest
+	var podsList commonIL.StatusRequest
 
 	for _, pod := range p.pods {
 		for _, container := range pod.Spec.Containers {
-			podsList.PodUIDs = append(podsList.PodUIDs, types.PodUID{UID: container.Name})
+			podsList.PodUIDs = append(podsList.PodUIDs, commonIL.PodUID{UID: container.Name})
 		}
 
 	}

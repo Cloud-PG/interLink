@@ -25,7 +25,7 @@ Build the components by running:
 ```
 make all
 ```
-Output files be created within the bin folder.
+Output files will be created within the bin folder.
 
 Remember to correctly set-up Environment Variables (or the InterLinkConfig.yaml file. ENVS have priority over config file) according to the service you want to use!
 

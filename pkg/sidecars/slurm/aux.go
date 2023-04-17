@@ -130,7 +130,6 @@ func slurm_batch_submit(path string) string {
 		log.Println("Could not run sbatch. " + err.Error())
 	}*/
 	return string(execReturn.Stdout)
-
 }
 
 func handle_jid(container v1.Container, output string) {

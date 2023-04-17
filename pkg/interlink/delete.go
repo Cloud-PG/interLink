@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	types "github.com/cloud-pg/interlink/pkg/common"
+	commonIL "github.com/cloud-pg/interlink/pkg/common"
 )
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -19,12 +19,12 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	var req *http.Request
 	reader := bytes.NewReader(bodyBytes)
 
-	switch types.InterLinkConfigInst.Sidecarservice {
+	switch commonIL.InterLinkConfigInst.Sidecarservice {
 	case "docker":
-		req, err = http.NewRequest(http.MethodPost, types.InterLinkConfigInst.Sidecarurl+":"+types.InterLinkConfigInst.Sidecarport+"/delete", reader)
+		req, err = http.NewRequest(http.MethodPost, commonIL.InterLinkConfigInst.Sidecarurl+":"+commonIL.InterLinkConfigInst.Sidecarport+"/delete", reader)
 
 	case "slurm":
-		req, err = http.NewRequest(http.MethodPost, types.InterLinkConfigInst.Sidecarurl+":"+types.InterLinkConfigInst.Sidecarport+"/stop", reader)
+		req, err = http.NewRequest(http.MethodPost, commonIL.InterLinkConfigInst.Sidecarurl+":"+commonIL.InterLinkConfigInst.Sidecarport+"/stop", reader)
 
 	default:
 		break

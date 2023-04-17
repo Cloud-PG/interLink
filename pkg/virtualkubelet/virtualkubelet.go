@@ -7,18 +7,16 @@ import (
 	"io"
 	"io/ioutil"
 	"math/rand"
-	"os"
 	"time"
 
 	"github.com/CARV-ICS-FORTH/knoc"
 	common "github.com/CARV-ICS-FORTH/knoc/common"
-	types "github.com/cloud-pg/interlink/pkg/common"
+	commonIL "github.com/cloud-pg/interlink/pkg/common"
 	"github.com/containerd/containerd/log"
 	"github.com/virtual-kubelet/node-cli/manager"
 	"github.com/virtual-kubelet/virtual-kubelet/errdefs"
 	"github.com/virtual-kubelet/virtual-kubelet/node/api"
 	"github.com/virtual-kubelet/virtual-kubelet/trace"
-	"gopkg.in/yaml.v2"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -80,48 +78,8 @@ func NewProvider(providerConfig, nodeName, operatingSystem string, internalIP st
 
 // loadConfig loads the given json configuration files and yaml to communicate with InterLink.
 func loadConfig(providerConfig, nodeName string) (config VirtualKubeletConfig, err error) {
-	yfile, err := ioutil.ReadFile("./config/InterLinkConfig.yaml")
-	yaml.Unmarshal(yfile, &types.InterLinkConfigInst)
 
-	if os.Getenv("INTERLINKURL") != "" {
-		types.InterLinkConfigInst.Interlinkurl = os.Getenv("INTERLINKURL")
-	}
-
-	if os.Getenv("SIDECARURL") != "" {
-		types.InterLinkConfigInst.Sidecarurl = os.Getenv("SIDECARURL")
-	}
-
-	if os.Getenv("INTERLINKPORT") != "" {
-		types.InterLinkConfigInst.Interlinkport = os.Getenv("INTERLINKPORT")
-	}
-
-	if os.Getenv("SIDECARSERVICE") != "" {
-		if os.Getenv("SIDECARSERVICE") != "docker" && os.Getenv("SIDECARSERVICE") != "slurm" {
-			fmt.Println("export SIDECARSERVICE as docker or slurm")
-			return
-		}
-		types.InterLinkConfigInst.Sidecarservice = os.Getenv("SIDECARSERVICE")
-	} else if types.InterLinkConfigInst.Sidecarservice != "docker" && types.InterLinkConfigInst.Sidecarservice != "slurm" {
-		fmt.Println("Set \"docker\" or \"slurm\" in config file or export SIDECARSERVICE as ENV")
-		return
-	}
-
-	if os.Getenv("SIDECARPORT") != "" && os.Getenv("SIDECARSERVICE") == "" {
-		types.InterLinkConfigInst.Sidecarport = os.Getenv("SIDECARPORT")
-		types.InterLinkConfigInst.Sidecarservice = "Custom Service"
-	} else {
-		switch types.InterLinkConfigInst.Sidecarservice {
-		case "docker":
-			types.InterLinkConfigInst.Sidecarport = "4000"
-
-		case "slurm":
-			types.InterLinkConfigInst.Sidecarport = "4001"
-
-		default:
-			fmt.Println("Define in InterLinkConfig.yaml one service between docker and slurm")
-			return
-		}
-	}
+	commonIL.NewInterLinkConfig()
 
 	data, err := ioutil.ReadFile(providerConfig)
 	if err != nil {

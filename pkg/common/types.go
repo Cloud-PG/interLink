@@ -33,6 +33,5 @@ type InterLinkConfig struct {
 	Interlinkport  string
 	Sidecarport    string
 	Sidecarservice string
+	set            bool
 }
-
-var InterLinkConfigInst InterLinkConfig
