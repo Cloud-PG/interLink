@@ -15,6 +15,10 @@ This is the layer managing the communication with the plug-ins. We began impleme
 - Sidecars
 Basically, that's the name we refer to each plug-in talking with the InterLink layer. Each Sidecar is inependent and separately talks with the InterLink layer.
 
+# End2end example
+
+Please refer to this [repository](https://github.com/Cloud-PG/interLink/blob/main/README.md)
+
 # Build and Usage
 Requirements: 
 - Golang >= 1.18.9 (might work with older version, but didn't test)
