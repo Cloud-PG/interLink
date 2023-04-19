@@ -4,27 +4,30 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
+const (
+	RUNNING = 0
+	STOP    = 1
+	UNKNOWN = 2
+	SBATCH  = "/opt/slurm/current/bin/sbatch"
+	SCANCEL = "/opt/slurm/current/bin/sbatch"
+)
+
 type PodUID struct {
 	UID string `json:"podUID"`
 }
 
 type PodStatus struct {
-	PodStatus string `json:"podStatus"`
+	PodStatus uint `json:"podStatus"`
 }
 
 type StatusResponse struct {
-	PodUID
-	PodStatus
-	ReturnVal string `json:"returnVal"`
+	PodUID    []PodUID    `json:"poduid"`
+	PodStatus []PodStatus `json:"podstatus"`
+	ReturnVal string      `json:"returnVal"`
 }
 
-type StatusRequest struct {
-	PodUIDs []PodUID `json:"podUIDs"`
-}
-
-type CreateRequest struct {
-	Container v1.Container
-	Pod       v1.Pod
+type Request struct {
+	Pods map[string]*v1.Pod `json:"pods"`
 }
 
 type InterLinkConfig struct {

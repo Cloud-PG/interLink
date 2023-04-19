@@ -53,7 +53,7 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	var req types.CreateRequest
+	var req types.Request
 	json.Unmarshal(bodyBytes, &req)
 
 	cmd := []string{"run", "-d", "--name", req.Container.Name}

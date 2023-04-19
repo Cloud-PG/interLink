@@ -71,8 +71,6 @@ func NewInterLinkConfig() {
 				return
 			}
 		}
-	} else {
-		return
+		InterLinkConfigInst.set = true
 	}
-
 }

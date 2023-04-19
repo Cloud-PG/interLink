@@ -15,7 +15,7 @@ import (
 )
 
 func createRequest(jsonBody []byte) {
-	request := commonIL.CreateRequest{}
+	request := commonIL.Request{}
 	json.Unmarshal(jsonBody, &request)
 	var req *http.Request
 	var err error
@@ -34,7 +34,7 @@ func createRequest(jsonBody []byte) {
 }
 
 func deleteRequest(jsonBody []byte) []byte {
-	var returnValue, _ = json.Marshal(commonIL.PodStatus{PodStatus: "UNDEFINED"})
+	var returnValue, _ = json.Marshal(commonIL.PodStatus{PodStatus: commonIL.UNKNOWN})
 
 	reader := bytes.NewReader(jsonBody)
 	req, err := http.NewRequest(http.MethodDelete, commonIL.InterLinkConfigInst.Interlinkurl+":"+commonIL.InterLinkConfigInst.Interlinkport+"/delete", reader)
@@ -54,19 +54,18 @@ func deleteRequest(jsonBody []byte) []byte {
 	return returnValue
 }
 
-func statusRequest(jsonBody []byte) []byte {
-	var request commonIL.StatusRequest
+func statusRequest(podsList commonIL.Request) []byte {
 	var returnValue []byte
 	var response []commonIL.StatusResponse
 
-	returnValue, _ = json.Marshal(response)
-	json.Unmarshal(jsonBody, &request)
-
-	reader := bytes.NewReader(jsonBody)
+	bodyBytes, err := json.Marshal(podsList)
+	reader := bytes.NewReader(bodyBytes)
 	req, err := http.NewRequest(http.MethodGet, commonIL.InterLinkConfigInst.Interlinkurl+":"+commonIL.InterLinkConfigInst.Interlinkport+"/status", reader)
 	if err != nil {
 		log.L.Error(err)
 	}
+
+	log.L.Println(string(bodyBytes))
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -75,12 +74,13 @@ func statusRequest(jsonBody []byte) []byte {
 
 	returnValue, _ = ioutil.ReadAll(resp.Body)
 	json.Unmarshal(returnValue, &response)
+
 	return returnValue
 }
 
 func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, imageLocation string, pod *v1.Pod, container v1.Container) error {
 	var err error
-	var jsonVar commonIL.CreateRequest
+	var jsonVar commonIL.Request
 
 	switch mode {
 	case common.CREATE:
@@ -89,7 +89,10 @@ func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, 
 			return err
 		}
 
-		jsonVar = commonIL.CreateRequest{Container: container, Pod: *pod}
+		jsonVar = commonIL.Request{Pods: map[string]*v1.Pod{
+			pod.Name: pod,
+		}}
+
 		jsonBytes, _ := json.Marshal(jsonVar)
 		createRequest(jsonBytes)
 		break
@@ -112,23 +115,10 @@ func checkPodsStatus(p *VirtualKubeletProvider, ctx context.Context) {
 	if len(p.pods) == 0 {
 		return
 	}
-	var jsonBytes []byte
 	var returnVal []byte
-	var podsList commonIL.StatusRequest
+	var PodsList commonIL.Request
+	PodsList.Pods = p.pods
 
-	for _, pod := range p.pods {
-		for _, container := range pod.Spec.Containers {
-			podsList.PodUIDs = append(podsList.PodUIDs, commonIL.PodUID{UID: container.Name})
-		}
-
-	}
-
-	jsonBytes, err := json.Marshal(podsList)
-
-	if err != nil {
-		log.L.Error(err)
-	}
-
-	returnVal = statusRequest(jsonBytes)
+	returnVal = statusRequest(PodsList)
 	log.G(ctx).Infof(string(returnVal))
 }

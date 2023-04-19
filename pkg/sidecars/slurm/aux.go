@@ -11,17 +11,15 @@ import (
 	"strings"
 
 	exec2 "github.com/alexellis/go-execute/pkg/v1"
+	types "github.com/cloud-pg/interlink/pkg/common"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const (
-	//SUBMIT  = 0
-	//STOP    = 1
-	//UNKNOWN = 2
-	SBATCH  = "/opt/slurm/current/bin/sbatch"
-	SCANCEL = "/opt/slurm/current/bin/sbatch"
-)
+type JidStruct struct {
+	JID string
+	Pod v1.Pod
+}
 
 func prepare_envs(container v1.Container) []string {
 	env := make([]string, 1)
@@ -35,6 +33,7 @@ func prepare_envs(container v1.Container) []string {
 		env_data = env_data[:last]
 	}
 	env = append(env, env_data)
+
 	return env
 }
 
@@ -43,6 +42,8 @@ func prepare_mounts(container v1.Container) []string {
 	mount = append(mount, "--bind")
 	mount_data := ""
 	pod_name := strings.Split(container.Name, "-")
+
+	log.Println(pod_name)
 
 	err := os.MkdirAll(".knoc/"+strings.Join(pod_name[:6], "-"), os.ModePerm)
 	if err != nil {
@@ -61,7 +62,7 @@ func prepare_mounts(container v1.Container) []string {
 		"/m100_scratch/userexternal/dspiga00:/m100_scratch/userexternal/dspiga00" + "," +
 		"/m100_work:/m100_work" + "," +
 		"/cvmfs:/cvmfs" + "," +
-		"/m100_work/INF22_lhc_0/CMS/SITECONF:/marconi_work/Pra18_4658/cms/SITECONF" + ",")
+		"/m100_work/INF23_lhc_0/CMS/SITECONF:/marconi_work/Pra18_4658/cms/SITECONF" + ",")
 	mount_data += path_hardcoded
 	if last := len(mount_data) - 1; last >= 0 && mount_data[last] == ',' {
 		mount_data = mount_data[:last]
@@ -116,12 +117,12 @@ func slurm_batch_submit(path string) string {
 		Shell:   true,
 	}
 
-	execReturn, err := shell.Execute()
+	execReturn, _ := shell.Execute()
 	execReturn.Stdout = strings.ReplaceAll(execReturn.Stdout, "\n", "")
 
-	if err != nil {
+	if execReturn.Stderr != "" {
 		//log.Fatalln("Could not run sbatch. " + err.Error())
-		log.Println("Could not run sbatch. " + err.Error())
+		log.Println("Could not run sbatch. " + execReturn.Stderr)
 	}
 
 	/*output, err = exec.Command(SBATCH, path).CombinedOutput()
@@ -132,14 +133,15 @@ func slurm_batch_submit(path string) string {
 	return string(execReturn.Stdout)
 }
 
-func handle_jid(container v1.Container, output string) {
+func handle_jid(container v1.Container, output string, pod v1.Pod) {
 	r := regexp.MustCompile(`Submitted batch job (?P<jid>\d+)`)
 	jid := r.FindStringSubmatch(output)
 	f, err := os.Create(".knoc/" + container.Name + ".jid")
 	if err != nil {
-		log.Panicln("Cant create jid_file")
+		log.Println("Cant create jid_file")
 	}
 	f.WriteString(jid[1])
+	JID = append(JID, JidStruct{JID: jid[1], Pod: pod})
 	f.Close()
 }
 
@@ -152,9 +154,9 @@ func delete_container(container v1.Container) {
 	if err != nil {
 		log.Fatalln("Can't find job id of container")
 	}
-	_, err = exec.Command(SCANCEL, fmt.Sprint(jid)).Output()
+	_, err = exec.Command(types.SCANCEL, fmt.Sprint(jid)).Output()
 	if err != nil {
-		log.Fatalln("Could not delete job", jid)
+		log.Println("Could not delete job", jid)
 	}
 	exec.Command("rm", "-f ", ".knoc/"+container.Name+".out")
 	exec.Command("rm", "-f ", ".knoc/"+container.Name+".err")

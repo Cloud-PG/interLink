@@ -7,7 +7,7 @@ Everything is thought to be modular and it's divided in different layers. These 
 
 # Components
 - Virtual kubelet:
-We have implemented 3 more functions able to communicate with the InterLink layer; these functions are called createRequest, deleteRequest and statusRequest, which calls through a REST API to the InterLink layer. CreateRequest uses a POST, deleteRequest uses a DELETE, statusRequest uses a GET.
+We have implemented 3 more functions able to communicate with the InterLink layer; these functions are called createRequest, deleteRequest and statusRequest, which calls through a REST API to the InterLink layer. Request uses a POST, deleteRequest uses a DELETE, statusRequest uses a GET.
 
 - InterLink:
 This is the layer managing the communication with the plug-ins. We began implementing a Mock module, to return dummy answers, and then moved towards a Docker plugin, using a library to emulate a shell to call the Docker CLI commands to implement containers creation, deletion and status querying. We chose to not use Docker API to extend modularity and porting to other managers, since we can think to use a job workload queue like Slurm.
@@ -37,6 +37,7 @@ Remember to correctly set-up Environment Variables (or the InterLinkConfig.yaml 
 List of Environment Variables:
 $INTERLINKURL -> the URL to contact the InterLink executable. No need to specify a port here
 $INTERLINKPORT -> the InterLink listening port. Default is 3000
+$INTERLINKCONFIGPATH -> your config file path
 $SIDECARURL -> the URL to allow InterLink to communicate with the Sidecar module (docker, slurm, etc). No need to specify port here
 $SIDECARPORT -> the Sidecar listening port. Docker default is 4000, Slurm default is 4001
 $SIDECARSERVICE -> can be "docker" or "slurm" only (for the moment). If SIDECARPORT is not set, will set Sidecar Port in the code to default settings.
