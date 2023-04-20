@@ -121,7 +121,6 @@ func slurm_batch_submit(path string) string {
 	execReturn.Stdout = strings.ReplaceAll(execReturn.Stdout, "\n", "")
 
 	if execReturn.Stderr != "" {
-		//log.Fatalln("Could not run sbatch. " + err.Error())
 		log.Println("Could not run sbatch. " + execReturn.Stderr)
 	}
 
@@ -157,11 +156,12 @@ func delete_container(container v1.Container) {
 	_, err = exec.Command(types.SCANCEL, fmt.Sprint(jid)).Output()
 	if err != nil {
 		log.Println("Could not delete job", jid)
+	} else {
+		log.Println("Successfully deleted job ", jid)
 	}
 	exec.Command("rm", "-f ", ".knoc/"+container.Name+".out")
 	exec.Command("rm", "-f ", ".knoc/"+container.Name+".err")
 	exec.Command("rm", "-f ", ".knoc/"+container.Name+".status")
 	exec.Command("rm", "-f ", ".knoc/"+container.Name+".jid")
 	exec.Command("rm", "-rf", " .knoc/"+container.Name)
-	log.Println("Delete job", jid)
 }

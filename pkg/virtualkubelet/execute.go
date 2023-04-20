@@ -6,37 +6,46 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	common "github.com/CARV-ICS-FORTH/knoc/common"
+	exec "github.com/alexellis/go-execute/pkg/v1"
 	commonIL "github.com/cloud-pg/interlink/pkg/common"
 
 	"github.com/containerd/containerd/log"
 	v1 "k8s.io/api/core/v1"
 )
 
-func createRequest(jsonBody []byte) {
-	request := commonIL.Request{}
-	json.Unmarshal(jsonBody, &request)
-	var req *http.Request
-	var err error
+var NoReq uint8
 
-	reader := bytes.NewReader(jsonBody)
-	req, err = http.NewRequest(http.MethodPost, commonIL.InterLinkConfigInst.Interlinkurl+":"+commonIL.InterLinkConfigInst.Interlinkport+"/create", reader)
-
-	if err != nil {
-		log.L.Error(err)
-	}
-
-	_, err = http.DefaultClient.Do(req)
-	if err != nil {
-		log.L.Error(err)
-	}
-}
-
-func deleteRequest(jsonBody []byte) []byte {
+func createRequest(pod commonIL.Request) []byte {
 	var returnValue, _ = json.Marshal(commonIL.PodStatus{PodStatus: commonIL.UNKNOWN})
 
-	reader := bytes.NewReader(jsonBody)
+	bodyBytes, err := json.Marshal(pod)
+	reader := bytes.NewReader(bodyBytes)
+	req, err := http.NewRequest(http.MethodPost, commonIL.InterLinkConfigInst.Interlinkurl+":"+commonIL.InterLinkConfigInst.Interlinkport+"/create", reader)
+
+	if err != nil {
+		log.L.Error(err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.L.Error(err)
+	}
+
+	returnValue, _ = ioutil.ReadAll(resp.Body)
+	var response commonIL.PodStatus
+	json.Unmarshal(returnValue, &response)
+
+	return returnValue
+}
+
+func deleteRequest(pod commonIL.Request) []byte {
+	var returnValue, _ = json.Marshal(commonIL.PodStatus{PodStatus: commonIL.UNKNOWN})
+
+	bodyBytes, err := json.Marshal(pod)
+	reader := bytes.NewReader(bodyBytes)
 	req, err := http.NewRequest(http.MethodDelete, commonIL.InterLinkConfigInst.Interlinkurl+":"+commonIL.InterLinkConfigInst.Interlinkport+"/delete", reader)
 	if err != nil {
 		log.L.Error(err)
@@ -79,32 +88,22 @@ func statusRequest(podsList commonIL.Request) []byte {
 }
 
 func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, imageLocation string, pod *v1.Pod, container v1.Container) error {
-	var err error
-	var jsonVar commonIL.Request
+	var req commonIL.Request
+	req.Pods = map[string]*v1.Pod{pod.Name: pod}
 
 	switch mode {
 	case common.CREATE:
 		//v1.Pod used only for secrets and volumes management; TO BE IMPLEMENTED
-		if err != nil {
-			return err
-		}
-
-		jsonVar = commonIL.Request{Pods: map[string]*v1.Pod{
-			pod.Name: pod,
-		}}
-
-		jsonBytes, _ := json.Marshal(jsonVar)
-		createRequest(jsonBytes)
+		returnVal := createRequest(req)
+		log.L.Println(string(returnVal))
 		break
 
 	case common.DELETE:
-		//request := types.PodUID{UID: string(container.Name)}
-		jsonBytes, _ := json.Marshal(container)
-		returnVal := deleteRequest(jsonBytes)
-		log.G(ctx).Infof(string(returnVal))
-
-		if err != nil {
-			return err
+		if NoReq > 0 {
+			NoReq--
+		} else {
+			returnVal := deleteRequest(req)
+			log.L.Println(string(returnVal))
 		}
 		break
 	}
@@ -116,9 +115,33 @@ func checkPodsStatus(p *VirtualKubeletProvider, ctx context.Context) {
 		return
 	}
 	var returnVal []byte
+	var ret commonIL.StatusResponse
 	var PodsList commonIL.Request
 	PodsList.Pods = p.pods
 
 	returnVal = statusRequest(PodsList)
-	log.G(ctx).Infof(string(returnVal))
+	json.Unmarshal(returnVal, &ret)
+
+	for podIndex, podStatus := range ret.PodStatus {
+		if podStatus.PodStatus == 1 {
+			NoReq++
+			cmd := []string{"delete", "pod", ret.PodName[podIndex].Name, "-n", "vk"}
+			shell := exec.ExecTask{
+				Command: "kubectl",
+				Args:    cmd,
+				Shell:   true,
+			}
+
+			execReturn, _ := shell.Execute()
+			execReturn.Stdout = strings.ReplaceAll(execReturn.Stdout, "\n", "")
+
+			if execReturn.Stderr != "" {
+				log.L.Println("Could not delete pod. " + execReturn.Stderr)
+			} else {
+				log.L.Println("Pod " + ret.PodName[podIndex].Name + " successfully deleted")
+			}
+		}
+	}
+
+	log.L.Println(ret)
 }

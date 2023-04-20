@@ -68,7 +68,7 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 			path := produce_slurm_script(container, metadata, singularity_command)
 			log.Println("Submitting Slurm job")
 			out := slurm_batch_submit(path)
-			//handle_jid(container, out, req.Pods[0])
+			handle_jid(container, out, *pod)
 			log.Print(out)
 
 			jid, err := os.ReadFile(".knoc/" + container.Name + ".jid")
@@ -89,16 +89,20 @@ func StopHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req v1.Container
+	var req commonIL.Request
 	err = json.Unmarshal(bodyBytes, &req)
 	if err != nil {
 		log.Print(err)
 		return
 	}
 
-	delete_container(req)
+	for _, pod := range req.Pods {
+		containers := pod.Spec.Containers
 
-	log.Print("delete slurm job")
+		for _, container := range containers {
+			delete_container(container)
+		}
+	}
 }
 
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +114,6 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req commonIL.Request
 	var resp commonIL.StatusResponse
-	counter := 0
 	json.Unmarshal(bodyBytes, &req)
 	if err != nil {
 		log.Print(err)
@@ -126,14 +129,30 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	execReturn, err := shell.Execute()
 	execReturn.Stdout = strings.ReplaceAll(execReturn.Stdout, "\n", "")
 
+	log.Println(execReturn.Stdout)
+
 	for _, pod := range req.Pods {
+		var flag = false
 		for _, jid := range JID {
-			resp.PodUID[counter].UID = string(pod.UID)
-			if jid.JID == pod.Name {
-				resp.PodStatus[counter].PodStatus = commonIL.STOP
-			} else {
-				resp.PodStatus[counter].PodStatus = commonIL.RUNNING
+			resp.PodName = append(resp.PodName, commonIL.PodName{Name: string(pod.Name)})
+
+			cmd := []string{"-c", "squeue --me | grep " + jid.JID}
+			shell := exec.ExecTask{
+				Command: "bash",
+				Args:    cmd,
+				Shell:   true,
 			}
+			execReturn, _ := shell.Execute()
+
+			if execReturn.Stdout != "" {
+				flag = true
+			}
+		}
+
+		if flag {
+			resp.PodStatus = append(resp.PodStatus, commonIL.PodStatus{PodStatus: commonIL.RUNNING})
+		} else {
+			resp.PodStatus = append(resp.PodStatus, commonIL.PodStatus{PodStatus: commonIL.STOP})
 		}
 	}
 	resp.ReturnVal = "Status"

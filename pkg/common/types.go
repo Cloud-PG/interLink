@@ -9,11 +9,11 @@ const (
 	STOP    = 1
 	UNKNOWN = 2
 	SBATCH  = "/opt/slurm/current/bin/sbatch"
-	SCANCEL = "/opt/slurm/current/bin/sbatch"
+	SCANCEL = "/opt/slurm/current/bin/scancel"
 )
 
-type PodUID struct {
-	UID string `json:"podUID"`
+type PodName struct {
+	Name string `json:"podname"`
 }
 
 type PodStatus struct {
@@ -21,7 +21,7 @@ type PodStatus struct {
 }
 
 type StatusResponse struct {
-	PodUID    []PodUID    `json:"poduid"`
+	PodName   []PodName   `json:"podname"`
 	PodStatus []PodStatus `json:"podstatus"`
 	ReturnVal string      `json:"returnVal"`
 }
