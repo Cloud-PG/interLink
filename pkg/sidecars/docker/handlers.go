@@ -8,119 +8,141 @@ import (
 	"strings"
 
 	exec "github.com/alexellis/go-execute/pkg/v1"
-	types "github.com/cloud-pg/interlink/pkg/common"
-	v1 "k8s.io/api/core/v1"
+	commonIL "github.com/cloud-pg/interlink/pkg/common"
 )
 
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	//call to docker get status
+	var resp commonIL.StatusResponse
 
 	bodyBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var req types.StatusRequest
+	var req commonIL.Request
 	json.Unmarshal(bodyBytes, &req)
 
-	cmd := []string{"ps -aqf \"name="}
-	for _, pod := range req.PodUIDs {
-		cmd[0] += " " + pod.UID
+	for _, pod := range req.Pods {
+		for _, container := range pod.Spec.Containers {
+			cmd := []string{"ps -aqf \"name= " + container.Name + "\""}
+
+			shell := exec.ExecTask{
+				Command: "docker",
+				Args:    cmd,
+				Shell:   true,
+			}
+			execReturn, err := shell.Execute()
+			execReturn.Stdout = strings.ReplaceAll(execReturn.Stdout, "\n", "")
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			resp.PodName = append(resp.PodName, commonIL.PodName{Name: pod.Name})
+			log.Println(execReturn.Stderr, execReturn.Stdout)
+
+			if execReturn.Stdout == "" {
+				resp.PodStatus = append(resp.PodStatus, commonIL.PodStatus{PodStatus: commonIL.STOP})
+			} else {
+				resp.PodStatus = append(resp.PodStatus, commonIL.PodStatus{PodStatus: commonIL.RUNNING})
+			}
+		}
 	}
 
-	cmd[0] += "\""
+	resp.ReturnVal = "Status"
+	bodyBytes, _ = json.Marshal(resp)
 
-	shell := exec.ExecTask{
-		Command: "docker",
-		Args:    cmd,
-		Shell:   true,
-	}
-
-	execReturn, err := shell.Execute()
-	execReturn.Stdout = strings.ReplaceAll(execReturn.Stdout, "\n", "")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	w.Write([]byte(execReturn.Stdout))
+	w.Write(bodyBytes)
 }
 
 func CreateHandler(w http.ResponseWriter, r *http.Request) {
-	//call to docker create container
-
+	var execReturn exec.ExecResult
 	bodyBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var req types.Request
+	var req commonIL.Request
 	json.Unmarshal(bodyBytes, &req)
 
-	cmd := []string{"run", "-d", "--name", req.Container.Name}
-	for _, args := range req.Container.Args {
-		cmd = append(cmd, args)
+	for _, pod := range req.Pods {
+		for _, container := range pod.Spec.Containers {
+			cmd := []string{"run", "-d", "--name", container.Name}
+
+			cmd = append(cmd, container.Image)
+
+			for _, command := range container.Command {
+				cmd = append(cmd, command)
+			}
+			for _, args := range container.Args {
+				cmd = append(cmd, args)
+			}
+
+			shell := exec.ExecTask{
+				Command: "docker",
+				Args:    cmd,
+				Shell:   true,
+			}
+
+			execReturn, err = shell.Execute()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			shell = exec.ExecTask{
+				Command: "docker",
+				Args:    []string{"ps", "-aqf", "name=^" + container.Name + "$"},
+				Shell:   true,
+			}
+
+			execReturn, err = shell.Execute()
+			execReturn.Stdout = strings.ReplaceAll(execReturn.Stdout, "\n", "")
+		}
 	}
-
-	cmd = append(cmd, req.Container.Image)
-
-	for _, command := range req.Container.Command {
-		cmd = append(cmd, command)
-	}
-
-	shell := exec.ExecTask{
-		Command: "docker",
-		Args:    cmd,
-		Shell:   true,
-	}
-
-	execReturn, err := shell.Execute()
 	if err != nil {
-		log.Fatal(err)
+		w.Write([]byte(execReturn.Stderr))
+	} else {
+		w.Write([]byte("All containers for submitted Pods have been created"))
 	}
-
-	shell = exec.ExecTask{
-		Command: "docker",
-		Args:    []string{"ps", "-aqf", "name=^" + req.Container.Name + "$"},
-		Shell:   true,
-	}
-
-	execReturn, err = shell.Execute()
-	execReturn.Stdout = strings.ReplaceAll(execReturn.Stdout, "\n", "")
-
-	w.Write([]byte(execReturn.Stdout))
 }
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
-	//call to docker delete container
-
+	var execReturn exec.ExecResult
 	bodyBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var req v1.Container
+	var req commonIL.Request
 	json.Unmarshal(bodyBytes, &req)
 
-	cmd := []string{"stop", req.Name}
-	shell := exec.ExecTask{
-		Command: "docker",
-		Args:    cmd,
-		Shell:   true,
-	}
-	execReturn, err := shell.Execute()
+	for _, pod := range req.Pods {
+		cmd := []string{"stop", pod.Name}
+		shell := exec.ExecTask{
+			Command: "docker",
+			Args:    cmd,
+			Shell:   true,
+		}
+		execReturn, err = shell.Execute()
 
-	cmd = []string{"rm", execReturn.Stdout}
-	shell = exec.ExecTask{
-		Command: "docker",
-		Args:    cmd,
-		Shell:   true,
+		cmd = []string{"rm", execReturn.Stdout}
+		shell = exec.ExecTask{
+			Command: "docker",
+			Args:    cmd,
+			Shell:   true,
+		}
+		execReturn, err = shell.Execute()
+		execReturn.Stdout = strings.ReplaceAll(execReturn.Stdout, "\n", "")
+
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
-	execReturn, err = shell.Execute()
-	execReturn.Stdout = strings.ReplaceAll(execReturn.Stdout, "\n", "")
 
 	if err != nil {
-		log.Fatal(err)
+		w.Write([]byte(execReturn.Stderr))
+	} else {
+		w.Write([]byte("All containers for submitted Pods have been deleted"))
 	}
-
-	w.Write([]byte(execReturn.Stdout))
 }
