@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	exec2 "github.com/alexellis/go-execute/pkg/v1"
-	types "github.com/cloud-pg/interlink/pkg/common"
+	commonIL "github.com/cloud-pg/interlink/pkg/common"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -93,6 +93,16 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 	for _, slurm_flag := range sbatch_flags_from_argo {
 		sbatch_flags_as_string += "\n#SBATCH " + slurm_flag
 	}
+
+	prefix := ""
+	if commonIL.InterLinkConfigInst.Commandprefix != "" {
+		prefix += "\n" + commonIL.InterLinkConfigInst.Commandprefix + "\n"
+	}
+
+	if commonIL.InterLinkConfigInst.Tsocks {
+		prefix += "\n export LD_PRELOAD=" + commonIL.InterLinkConfigInst.Tsockspath + "\n"
+	}
+
 	sbatch_macros := "#!/bin/bash" +
 		"\n#SBATCH --job-name=" + container.Name +
 		sbatch_flags_as_string +
@@ -100,16 +110,14 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 		"\nmodule load singularity" +
 		"\nexport SINGULARITYENV_SINGULARITY_TMPDIR=$CINECA_SCRATCH" +
 		"\nexport SINGULARITYENV_SINGULARITY_CACHEDIR=$CINECA_SCRATCH" +
-		"\npwd; hostname; date\n"
+		"\npwd; hostname; date\n" +
+		prefix
 	f.WriteString(sbatch_macros + "\n" + strings.Join(command[:], " ") + " >> " + ".knoc/" + container.Name + ".out 2>> " + ".knoc/" + container.Name + ".err \n echo $? > " + ".knoc/" + container.Name + ".status")
 	f.Close()
 	return ".tmp/" + container.Name + ".sh"
 }
 
 func slurm_batch_submit(path string) string {
-	//var output []byte
-	//var err error
-
 	cmd := []string{path}
 	shell := exec2.ExecTask{
 		Command: "sbatch",
@@ -123,12 +131,6 @@ func slurm_batch_submit(path string) string {
 	if execReturn.Stderr != "" {
 		log.Println("Could not run sbatch. " + execReturn.Stderr)
 	}
-
-	/*output, err = exec.Command(SBATCH, path).CombinedOutput()
-	if err != nil {
-		//log.Fatalln("Could not run sbatch. " + err.Error())
-		log.Println("Could not run sbatch. " + err.Error())
-	}*/
 	return string(execReturn.Stdout)
 }
 
@@ -153,7 +155,7 @@ func delete_container(container v1.Container) {
 	if err != nil {
 		log.Fatalln("Can't find job id of container")
 	}
-	_, err = exec.Command(types.SCANCEL, fmt.Sprint(jid)).Output()
+	_, err = exec.Command(commonIL.SCANCEL, fmt.Sprint(jid)).Output()
 	if err != nil {
 		log.Println("Could not delete job", jid)
 	} else {

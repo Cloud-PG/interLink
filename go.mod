@@ -5,18 +5,19 @@ go 1.18
 require (
 	contrib.go.opencensus.io/exporter/ocagent v0.5.0
 	github.com/CARV-ICS-FORTH/knoc v0.0.0-20230201071611-e1c17e3b6ae6
+	github.com/alexellis/go-execute v0.5.0
 	github.com/containerd/containerd v1.0.2
 	github.com/sirupsen/logrus v1.4.2
 	github.com/virtual-kubelet/node-cli v0.1.2
 	github.com/virtual-kubelet/virtual-kubelet v1.2.0
 	go.opencensus.io v0.22.0
+	gopkg.in/yaml.v2 v2.2.2
 	k8s.io/api v0.0.0
 	k8s.io/apimachinery v0.0.0
 	k8s.io/kubernetes v1.15.2
 )
 
 require (
-	github.com/alexellis/go-execute v0.5.0 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/davidmz/go-pageant v1.0.1 // indirect
@@ -56,7 +57,6 @@ require (
 	google.golang.org/genproto v0.0.0-20190425155659-357c62f0e4bb // indirect
 	google.golang.org/grpc v1.23.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	gopkg.in/yaml.v2 v2.2.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiserver v0.0.0 // indirect
 	k8s.io/client-go v11.0.0+incompatible // indirect

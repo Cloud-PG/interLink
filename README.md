@@ -24,6 +24,8 @@ Requirements:
 - Golang >= 1.18.9 (might work with older version, but didn't test)
 - A working Kubernetes instance
 - An already set up KNoC environment
+- Docker for the Docker Sidecar
+- Sbatch, Scancel and Squeue (Slurm environment) for the Slurm sidecar
 
 Build the components by running:
 ```
@@ -41,6 +43,8 @@ $INTERLINKCONFIGPATH -> your config file path
 $SIDECARURL -> the URL to allow InterLink to communicate with the Sidecar module (docker, slurm, etc). No need to specify port here
 $SIDECARPORT -> the Sidecar listening port. Docker default is 4000, Slurm default is 4001
 $SIDECARSERVICE -> can be "docker" or "slurm" only (for the moment). If SIDECARPORT is not set, will set Sidecar Port in the code to default settings.
+$TSOCKS -> true or false, to use tsocks library allowing proxy networking. Working on Slurm sidecar at the moment.
+$TSOCKSPATH -> path to your tsocks library
 ```
 
 ENVS and config naming matches, so you will just find the config names to be the lowercases of the ENVS naming

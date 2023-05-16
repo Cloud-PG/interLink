@@ -71,6 +71,29 @@ func NewInterLinkConfig() {
 				return
 			}
 		}
+
+		if os.Getenv("TSOCKS") != "" {
+			if os.Getenv("TSOCKS") != "true" && os.Getenv("TSOCKS") != "false" {
+				fmt.Println("export TSOCKS as true or false")
+				return
+			}
+			if os.Getenv("TSOCKS") == "true" {
+				InterLinkConfigInst.Tsocks = true
+			} else {
+				InterLinkConfigInst.Tsocks = false
+			}
+		}
+
+		if os.Getenv("TSOCKSPATH") != "" {
+			path := os.Getenv("TSOCKSPATH")
+			if _, err := os.Stat(path); err != nil {
+				log.Println("File " + path + " doesn't exist. You can set a custom path by exporting TSOCKSPATH. Exiting...")
+				os.Exit(-1)
+			}
+
+			InterLinkConfigInst.Tsockspath = path
+		}
+
 		InterLinkConfigInst.set = true
 	}
 }

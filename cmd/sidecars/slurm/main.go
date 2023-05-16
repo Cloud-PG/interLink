@@ -4,10 +4,13 @@ import (
 	"log"
 	"net/http"
 
+	commonIL "github.com/cloud-pg/interlink/pkg/common"
 	slurm "github.com/cloud-pg/interlink/pkg/sidecars/slurm"
 )
 
 func main() {
+
+	commonIL.NewInterLinkConfig()
 
 	mutex := http.NewServeMux()
 	mutex.HandleFunc("/status", slurm.StatusHandler)

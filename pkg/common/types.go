@@ -31,10 +31,13 @@ type Request struct {
 }
 
 type InterLinkConfig struct {
-	Interlinkurl   string
-	Sidecarurl     string
-	Interlinkport  string
+	Interlinkurl   string `yaml:"InterlinkURL"`
+	Sidecarurl     string `yaml:"SidecarURL"`
+	Interlinkport  string `yaml:"InterlinkPort"`
 	Sidecarport    string
-	Sidecarservice string
+	Sidecarservice string `yaml:"SidecarService"`
+	Commandprefix  string `yaml:"CommandPrefix"`
+	Tsocks         bool   `yaml:"Tsocks"`
+	Tsockspath     string `yaml:"TsocksPath"`
 	set            bool
 }

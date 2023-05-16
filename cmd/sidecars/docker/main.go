@@ -4,10 +4,13 @@ import (
 	"log"
 	"net/http"
 
+	commonIL "github.com/cloud-pg/interlink/pkg/common"
 	docker "github.com/cloud-pg/interlink/pkg/sidecars/docker"
 )
 
 func main() {
+
+	commonIL.NewInterLinkConfig()
 
 	mutex := http.NewServeMux()
 	mutex.HandleFunc("/status", docker.StatusHandler)
