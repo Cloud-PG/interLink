@@ -39,5 +39,9 @@ type InterLinkConfig struct {
 	Commandprefix  string `yaml:"CommandPrefix"`
 	Tsocks         bool   `yaml:"Tsocks"`
 	Tsockspath     string `yaml:"TsocksPath"`
+	Tsocksconfig   string `yaml:"TsocksConfig"`
+	Tsocksport     string
+	Tsockslogin    string `yaml:"TsocksLoginNode"`
+	Tsockscmd      string
 	set            bool
 }

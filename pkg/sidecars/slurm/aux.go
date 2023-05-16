@@ -100,7 +100,8 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 	}
 
 	if commonIL.InterLinkConfigInst.Tsocks {
-		prefix += "\n export LD_PRELOAD=" + commonIL.InterLinkConfigInst.Tsockspath + "\n"
+		prefix += "\nssh -N -D " + commonIL.InterLinkConfigInst.Tsocksport + " " + commonIL.InterLinkConfigInst.Tsockslogin + " &\n"
+		prefix += "\nexport LD_PRELOAD=" + commonIL.InterLinkConfigInst.Tsockspath + "\n"
 	}
 
 	sbatch_macros := "#!/bin/bash" +

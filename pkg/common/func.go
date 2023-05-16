@@ -5,8 +5,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v2"
+
+	exec "github.com/alexellis/go-execute/pkg/v1"
 )
 
 var InterLinkConfigInst InterLinkConfig
@@ -47,12 +50,12 @@ func NewInterLinkConfig() {
 		if os.Getenv("SIDECARSERVICE") != "" {
 			if os.Getenv("SIDECARSERVICE") != "docker" && os.Getenv("SIDECARSERVICE") != "slurm" {
 				fmt.Println("export SIDECARSERVICE as docker or slurm")
-				return
+				os.Exit(-1)
 			}
 			InterLinkConfigInst.Sidecarservice = os.Getenv("SIDECARSERVICE")
 		} else if InterLinkConfigInst.Sidecarservice != "docker" && InterLinkConfigInst.Sidecarservice != "slurm" {
 			fmt.Println("Set \"docker\" or \"slurm\" in config file or export SIDECARSERVICE as ENV")
-			return
+			os.Exit(-1)
 		}
 
 		if os.Getenv("SIDECARPORT") != "" && os.Getenv("SIDECARSERVICE") == "" {
@@ -68,14 +71,14 @@ func NewInterLinkConfig() {
 
 			default:
 				fmt.Println("Define in InterLinkConfig.yaml one service between docker and slurm")
-				return
+				os.Exit(-1)
 			}
 		}
 
 		if os.Getenv("TSOCKS") != "" {
 			if os.Getenv("TSOCKS") != "true" && os.Getenv("TSOCKS") != "false" {
 				fmt.Println("export TSOCKS as true or false")
-				return
+				os.Exit(-1)
 			}
 			if os.Getenv("TSOCKS") == "true" {
 				InterLinkConfigInst.Tsocks = true
@@ -92,6 +95,25 @@ func NewInterLinkConfig() {
 			}
 
 			InterLinkConfigInst.Tsockspath = path
+		}
+
+		if InterLinkConfigInst.Tsocks {
+			path := InterLinkConfigInst.Tsocksconfig
+			cmd := []string{"server_port", path}
+			shell := exec.ExecTask{
+				Command: "grep",
+				Args:    cmd,
+				Shell:   true,
+			}
+
+			execReturn, _ := shell.Execute()
+			if execReturn.Stderr != "" {
+				log.Println("Unable to parse tsocks port. Maybe wrong tsocks config path?")
+				os.Exit(-1)
+			}
+
+			InterLinkConfigInst.Tsocksport = strings.Split(execReturn.Stdout, " = ")[1]
+			InterLinkConfigInst.Tsocksport = strings.Replace(InterLinkConfigInst.Tsocksport, "\n", "", -1)
 		}
 
 		InterLinkConfigInst.set = true
