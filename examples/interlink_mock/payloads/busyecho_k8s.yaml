@@ -11,7 +11,7 @@ spec:
     command:
       - /m100/home/userexternal/gsurace0/script.sh
     imagePullPolicy: Always
-    name: busyecho-1-2-3-4-5-6-7-8-9
+    name: busyecho
   dnsPolicy: ClusterFirst
   nodeSelector:
     kubernetes.io/role: agent

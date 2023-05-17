@@ -43,19 +43,24 @@ func prepare_mounts(container v1.Container) []string {
 	mount_data := ""
 	pod_name := strings.Split(container.Name, "-")
 
-	log.Println(pod_name)
+	if len(pod_name) > 6 {
+		pod_name = pod_name[0:6]
+	}
 
-	err := os.MkdirAll(".knoc/"+strings.Join(pod_name[:6], "-"), os.ModePerm)
+	err := os.MkdirAll(".knoc/"+strings.Join(pod_name[:len(pod_name)-1], "-"), os.ModePerm)
 	if err != nil {
 		log.Fatalln("Cant create directory")
 	}
+
 	for _, mount_var := range container.VolumeMounts {
-		f, err := os.Create(".knoc/" + strings.Join(pod_name[:6], "-") + "/" + mount_var.Name)
+
+		f, err := os.Create(".knoc/" + strings.Join(pod_name[:len(pod_name)-1], "-") + "/" + mount_var.Name)
 		f.WriteString("")
 		if err != nil {
 			log.Fatalln("Cant create directory")
 		}
-		path := (".knoc/" + strings.Join(pod_name[:6], "-") + "/" + mount_var.Name + ":" + mount_var.MountPath + ",")
+
+		path := (".knoc/" + strings.Join(pod_name[:len(pod_name)-1], "-") + "/" + mount_var.Name + ":" + mount_var.MountPath + ",")
 		mount_data += path
 	}
 	path_hardcoded := ("/cvmfs/grid.cern.ch/etc/grid-security:/etc/grid-security" + "," +
@@ -96,12 +101,12 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 
 	prefix := ""
 	if commonIL.InterLinkConfigInst.Commandprefix != "" {
-		prefix += "\n" + commonIL.InterLinkConfigInst.Commandprefix + "\n"
+		prefix += "\n" + commonIL.InterLinkConfigInst.Commandprefix
 	}
 
 	if commonIL.InterLinkConfigInst.Tsocks {
-		prefix += "\nssh -N -D " + commonIL.InterLinkConfigInst.Tsocksport + " " + commonIL.InterLinkConfigInst.Tsockslogin + " &\n"
-		prefix += "\nexport LD_PRELOAD=" + commonIL.InterLinkConfigInst.Tsockspath + "\n"
+		prefix += "\nssh -4 -N -D " + commonIL.InterLinkConfigInst.Tsocksport + " " + commonIL.InterLinkConfigInst.Tsockslogin + " &"
+		prefix += "\nexport LD_PRELOAD=" + commonIL.InterLinkConfigInst.Tsockspath
 	}
 
 	sbatch_macros := "#!/bin/bash" +
@@ -111,8 +116,9 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 		"\nmodule load singularity" +
 		"\nexport SINGULARITYENV_SINGULARITY_TMPDIR=$CINECA_SCRATCH" +
 		"\nexport SINGULARITYENV_SINGULARITY_CACHEDIR=$CINECA_SCRATCH" +
-		"\npwd; hostname; date\n" +
-		prefix
+		"\npwd; hostname; date" +
+		prefix +
+		"\n"
 	f.WriteString(sbatch_macros + "\n" + strings.Join(command[:], " ") + " >> " + ".knoc/" + container.Name + ".out 2>> " + ".knoc/" + container.Name + ".err \n echo $? > " + ".knoc/" + container.Name + ".status")
 	f.Close()
 	return ".tmp/" + container.Name + ".sh"
