@@ -100,13 +100,29 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 	}
 
 	prefix := ""
-	if commonIL.InterLinkConfigInst.Commandprefix != "" {
-		prefix += "\n" + commonIL.InterLinkConfigInst.Commandprefix
-	}
+	postfix := ""
 
 	if commonIL.InterLinkConfigInst.Tsocks {
-		prefix += "\nssh -4 -N -D " + commonIL.InterLinkConfigInst.Tsocksport + " " + commonIL.InterLinkConfigInst.Tsockslogin + " &"
+		postfix += "\n\nkill -15 $SSH_PID &> log2.txt"
+
+		prefix += "\nmin_port=10000"
+		prefix += "\nmax_port=65000"
+		prefix += "\nfor ((port=$min_port; port<=$max_port; port++))"
+		prefix += "\ndo"
+		prefix += "\n  temp=$(ss -tulpn | grep :$port)"
+		prefix += "\n  if [ -z \"$temp\" ]"
+		prefix += "\n  then"
+		prefix += "\n    break"
+		prefix += "\n  fi"
+		prefix += "\ndone"
+
+		prefix += "\nssh -4 -N -D $port " + commonIL.InterLinkConfigInst.Tsockslogin + " &"
+		prefix += "\nSSH_PID=$!"
 		prefix += "\nexport LD_PRELOAD=" + commonIL.InterLinkConfigInst.Tsockspath
+	}
+
+	if commonIL.InterLinkConfigInst.Commandprefix != "" {
+		prefix += "\n" + commonIL.InterLinkConfigInst.Commandprefix
 	}
 
 	sbatch_macros := "#!/bin/bash" +
@@ -119,7 +135,7 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 		"\npwd; hostname; date" +
 		prefix +
 		"\n"
-	f.WriteString(sbatch_macros + "\n" + strings.Join(command[:], " ") + " >> " + ".knoc/" + container.Name + ".out 2>> " + ".knoc/" + container.Name + ".err \n echo $? > " + ".knoc/" + container.Name + ".status")
+	f.WriteString(sbatch_macros + "\n" + strings.Join(command[:], " ") + " >> " + ".knoc/" + container.Name + ".out 2>> " + ".knoc/" + container.Name + ".err \n echo $? > " + ".knoc/" + container.Name + ".status" + postfix)
 	f.Close()
 	return ".tmp/" + container.Name + ".sh"
 }
