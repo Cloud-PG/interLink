@@ -105,7 +105,7 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 	if commonIL.InterLinkConfigInst.Tsocks {
 		postfix += "\n\nkill -15 $SSH_PID &> log2.txt"
 
-		prefix += "\nmin_port=10000"
+		prefix += "\n\nmin_port=10000"
 		prefix += "\nmax_port=65000"
 		prefix += "\nfor ((port=$min_port; port<=$max_port; port++))"
 		prefix += "\ndo"
@@ -118,7 +118,8 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 
 		prefix += "\nssh -4 -N -D $port " + commonIL.InterLinkConfigInst.Tsockslogin + " &"
 		prefix += "\nSSH_PID=$!"
-		prefix += "\nexport LD_PRELOAD=" + commonIL.InterLinkConfigInst.Tsockspath
+		prefix += "\necho \"local = 10.0.0.0/255.0.0.0 \nserver = 127.0.0.1 \nserver_port = $port\" >> .tmp/" + container.Name + "_tsocks.conf"
+		prefix += "\nexport TSOCKS_CONF_FILE=.tmp/" + container.Name + "_tsocks.conf && export LD_PRELOAD=" + commonIL.InterLinkConfigInst.Tsockspath
 	}
 
 	if commonIL.InterLinkConfigInst.Commandprefix != "" {
