@@ -1,0 +1,66 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: mock-vk
+  labels:
+    nodeName: mock-vk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      nodeName: mock-vk
+  template:
+    metadata:
+      labels:
+        nodeName: mock-vk
+    spec:
+      containers:
+      - name: mock-vk
+        image: ghcr.io/dodas-ts/vk:v2 
+        #image: busybox 
+        imagePullPolicy: Always
+        #command:
+        #- /bin/sleep
+        args:
+        #- infinity
+        - --nodename
+        - mock-vk
+        - --provider
+        - knoc
+        - --provider-config
+        - /home/user0/knoc-cfg.json
+        - --startup-timeout
+        - 10s
+        - --klog.v
+        - "2"
+        - --klog.logtostderr
+        - --log-level
+        - debug
+        env:
+        - name: KUBELET_PORT
+          value: "10250"
+        - name: VKUBELET_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        volumeMounts:
+        - name: config
+          mountPath: /etc/interlink/InterLinkConfig.yaml
+          subPath: InterLinkConfig.yaml
+        - name: config-json
+          mountPath: /home/user0/knoc-cfg.json
+          subPath: knoc-cfg.json
+      serviceAccountName: knoc
+      volumes:
+      - name: config
+        configMap:
+          # Provide the name of the ConfigMap you want to mount.
+          name: vk-config
+      - name: config-json
+        configMap:
+          # Provide the name of the ConfigMap you want to mount.
+          name: mock-vk-config
+
+

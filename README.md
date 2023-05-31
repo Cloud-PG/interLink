@@ -1,11 +1,14 @@
-# Overview
+# Interlink
+## Overview
+
 This project aims to enable a communication between a Kubernetes VitualKubelet and a container manager, like for example Docker.
 The project is based on KNoC, for reference, check https://github.com/CARV-ICS-FORTH/knoc
 Everything is thought to be modular and it's divided in different layers. These layers are summarized in the following drawing:
 
 ![drawing](imgs/InterLink.svg)
 
-# Components
+## Components
+
 - Virtual kubelet:
 We have implemented 3 more functions able to communicate with the InterLink layer; these functions are called createRequest, deleteRequest and statusRequest, which calls through a REST API to the InterLink layer. Request uses a POST, deleteRequest uses a DELETE, statusRequest uses a GET.
 
@@ -15,11 +18,19 @@ This is the layer managing the communication with the plug-ins. We began impleme
 - Sidecars
 Basically, that's the name we refer to each plug-in talking with the InterLink layer. Each Sidecar is inependent and separately talks with the InterLink layer.
 
-# End2end example
+## Install Virtual-kubelet
+
+```bash
+kubectl create ns virtual-kubelet
+kubectl apply -n virtual-kubelet -k ./kustomizations
+```
+
+## End2end example
 
 Please refer to this [repository](https://github.com/Cloud-PG/interLink/blob/main/README.md)
 
-# Build and Usage
+## Build and Usage
+
 Requirements: 
 - Golang >= 1.18.9 (might work with older version, but didn't test)
 - A working Kubernetes instance
@@ -61,7 +72,8 @@ A quick start-up command for the VK executable is given by the following example
 
 For the other executables, you can just normally run them.
 
-# Debug
+## Debug
+
 To debug, we found out Delve debugger is pretty handful. To run a debug session, install delve debugger by running;
 ```
 go install github.com/go-delve/delve/cmd/dlv@latest
