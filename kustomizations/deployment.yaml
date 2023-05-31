@@ -19,12 +19,8 @@ spec:
       containers:
       - name: test-vk
         image: docker.io/surax98/vk:latest
-        #image: busybox
         imagePullPolicy: Always
-        #command:
-        #- /bin/sleep
         args:
-        #- infinity
         - --nodename
         - test-vk
         - --provider

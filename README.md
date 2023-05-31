@@ -27,7 +27,27 @@ kubectl apply -n vk -k ./kustomizations
 ```
 
 ### Customizing your Virtual Kubelet
+It is possible to customize your deployment by editing the configuration files within the kustomizations directory:
+- kustomization.yaml: here you can specify resource files and generate configMaps
+- deployment.yaml: that's the main file you want to edit. Nested into spec -> template -> spec -> containers you can find these fields:
+    - name: the container name
+    - image: Here you can specify which image to use, if you need another one. 
+    - args: These are the arguments passed to the VK binary running inside the container.
+    - env: Environment Variables used by kubelet and by the VK itself. Check the ENVS list for a detailed explanation on how to set them.
+- knoc-cfg.json: it's the config file for the VK itself. Here you can specify how many resources to allocate for the VK. Note that the name specified here for the VK must match the name given in the others config files.
 
+#### Rebuilding Docker Image
+If you need to perform any change to the VK source code and you need to rebuild the docker image (or if you just want to rebuilt it for whatever reason), remember to login into your Docker Hub account
+```bash
+docker login
+```
+And then:
+```bash
+docker build -t *your docker hub username*/*image name*:*image version* -f Dockerfile.vk .
+docker push *your docker hub username*/*image name*:*image version*
+```
+After pushing the image, edit the deployment.yaml file and change the image to the one you just built. If you changed container name, you also have to replace it on the other instances, like for example within the knoc-cfg.json file.
+You can then kubectl apply again, according to your changes
 
 ## End2end example
 
