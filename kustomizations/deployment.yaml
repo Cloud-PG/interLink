@@ -45,6 +45,9 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
+                - name: INTERLINKCONFIGPATH
+        - name: INTERLINKCONFIGPATH
+          value: "/etc/interlink/InterLinkConfig.yaml"
         volumeMounts:
         - name: config
           mountPath: /etc/interlink/InterLinkConfig.yaml
