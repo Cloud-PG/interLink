@@ -1,5 +1,5 @@
 {
-    "mock-vk": {
+    "test-vk": {
         "cpu": "128", 
         "memory": "800Gi",
         "pods": "1000"

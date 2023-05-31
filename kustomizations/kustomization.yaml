@@ -5,7 +5,7 @@ resources:
   - ./service-account.yaml
 
 configMapGenerator:
-  - name: mock-vk-config 
+  - name: test-vk-config 
     files:
       - knoc-cfg.json=knoc-cfg.json
   - name: vk-config 

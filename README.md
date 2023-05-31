@@ -21,9 +21,13 @@ Basically, that's the name we refer to each plug-in talking with the InterLink l
 ## Install Virtual-kubelet
 
 ```bash
-kubectl create ns virtual-kubelet
-kubectl apply -n virtual-kubelet -k ./kustomizations
+kubectl create ns vk
+kubectl kustomize ./kustomizations
+kubectl apply -n vk -k ./kustomizations
 ```
+
+### Customizing your Virtual Kubelet
+
 
 ## End2end example
 

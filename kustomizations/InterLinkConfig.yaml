@@ -1,5 +1,9 @@
-interlinkurl: "http://172.20.0.1"
-sidecarurl: "http://172.20.0.1"
-interlinkport: "3000"
-sidecarport: "4000"
-sidecarservice: "docker"
+InterlinkURL: "http://localhost"
+SidecarURL: "http://localhost"
+InterlinkPort: "3000"
+SidecarService: "slurm" #docker, slurm
+CommandPrefix: ""
+Tsocks: false
+TsocksPath: "$WORK/tsocks-1.8beta5+ds1/libtsocks.so"
+TsocksConfig: "$HOME/.tsocks.conf"
+TsocksLoginNode: "login01"

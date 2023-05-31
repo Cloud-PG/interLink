@@ -1,32 +1,32 @@
 ---
 
 apiVersion: apps/v1
-kind: Deployment 
+kind: Deployment
 metadata:
-  name: mock-vk
+  name: test-vk
   labels:
-    nodeName: mock-vk
+    nodeName: test-vk
 spec:
   replicas: 1
   selector:
     matchLabels:
-      nodeName: mock-vk
+      nodeName: test-vk
   template:
     metadata:
       labels:
-        nodeName: mock-vk
+        nodeName: test-vk
     spec:
       containers:
-      - name: mock-vk
-        image: ghcr.io/dodas-ts/vk:v2 
-        #image: busybox 
+      - name: test-vk
+        image: docker.io/surax98/vk:latest
+        #image: busybox
         imagePullPolicy: Always
         #command:
         #- /bin/sleep
         args:
         #- infinity
         - --nodename
-        - mock-vk
+        - test-vk
         - --provider
         - knoc
         - --provider-config
@@ -63,6 +63,6 @@ spec:
       - name: config-json
         configMap:
           # Provide the name of the ConfigMap you want to mount.
-          name: mock-vk-config
+          name: test-vk-config
 
 
