@@ -65,7 +65,8 @@ Building standalone binaries is way easier and all you need is a simple
  ```bash
 make all
 ```
-You will find all VK, InterLink and Sidecars binaries in the bin folder. Replace all with vk/interlink/sidecars to only build the respective component.
+You will find all VK, InterLink and Sidecars binaries in the bin folder. 
+If you want to only build a component, replace 'all' with vk/interlink/sidecars to only build the respective component.
 
 ### :whale2: Docker images
 Building Docker Images is still simple, but requires 'a little' more effort.
