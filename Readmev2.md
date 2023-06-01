@@ -31,6 +31,7 @@ Basically, that's the name we refer to each plug-in talking with the InterLink l
 - [Kustomize your Virtual Kubelet](#wrench-kustomizing-your-virtual-kubelet)
 - [InterLink Config file](#information_source-interlink-config-file)
 - [Environment Variables list](#information_source-environment-variables-list)
+- [Usage](#question-usage)
 
 ## :fast_forward: Quick Start
 - Fastest way to start using interlink, is by deploying a VK in Kubernetes using the prebuilt image:
@@ -89,6 +90,9 @@ Then, simply apply. Remember to specify the correct namespace.
 kubectl apply -n vk -k ./kustomizations
 ```
 After pushing the image, edit the deployment.yaml file, located inside the kustomization sub-folder, to reflect the new image name. Check the [Kustomizing your Virtual Kubelet](#wrench-kustomizing-your-Virtual-Kubelet) section for more informations on how to customize your VK deployment.
+
+### :question: Usage
+TO BE DONE
 
 ### :wrench: Kustomizing your Virtual Kubelet
 Since ideally the Virtual Kubelet runs into a Docker Container orchestred by a Kubernetes cluster, it is possible to customize your deployment by editing configuration files within the kustomizations directory:
