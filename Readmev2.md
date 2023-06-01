@@ -52,14 +52,14 @@ Note: I will soon update the quick start section to only use docker images / k8s
 
 ## :hammer: Building from sources
 It is possible you need to perform some adjustments or any modification to the source code and you want to rebuild it. You can both binaries, Docker images and even customize your own Kubernetes deployment. 
-### Binaries
+### :hash: Binaries
 Building standalone binaries is way simpler and all you need is a simple
  ```bash
 make all
 ```
 You will find all VK, InterLink and Sidecars binaries in the bin folder. Replace all with vk/interlink/sidecars to only build the respective component.
 
-### Docker images
+### :whale2: Docker images
 Building Docker Images is still simple, but requires 'a little' more effort.
 - First of all, login into your Docker Hub account
     ```bash
@@ -70,7 +70,18 @@ Building Docker Images is still simple, but requires 'a little' more effort.
     docker build -t *your docker hub username*/vk:latest -f Dockerfile.vk .
     docker push *your docker hub username*/vk:latest
     ```
-- After pushing the image, edit the deployment.yaml file, located inside the kustomization sub-folder, to reflect the new image name. Check the [Kustomizing your Virtual Kubelet](#wrench-kustomizing-your-Virtual-Kubelet) section for more informations on how to customize your VK deployment.
+
+### :electron: Kubernetes deployment
+It's basically building a Docker image with additional steps. After [building your images](#whale2-docker-images), just deploy them. If you haven't already created the proper namespace, do it now and apply your kustomizations:
+```bash
+kubectl create ns vk
+kubectl kustomize ./kustomizations
+```
+Then, simply apply
+```bash
+kubectl apply -f examples/interlink_mock/payloads/busyecho_k8s.yaml -n vk
+```
+After pushing the image, edit the deployment.yaml file, located inside the kustomization sub-folder, to reflect the new image name. Check the [Kustomizing your Virtual Kubelet](#wrench-kustomizing-your-Virtual-Kubelet) section for more informations on how to customize your VK deployment.
 
 ### :wrench: Kustomizing your Virtual Kubelet
 Since ideally the Virtual Kubelet runs into a Docker Container orchestred by a Kubernetes cluster, it is possible to customize your deployment by editing configuration files within the kustomizations directory:
