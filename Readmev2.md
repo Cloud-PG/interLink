@@ -59,7 +59,7 @@ Basically, that's the name we refer to each plug-in talking with the InterLink l
 Note: I will soon update the quick start section to only use docker images / k8s deployments
 
 ## :hammer: Building from sources
-It is possible you need to perform some adjustments or any modification to the source code and you want to rebuild it. You can both binaries, Docker images and even customize your own Kubernetes deployment. 
+It is possible you need to perform some adjustments or any modification to the source code and you want to rebuild it. You can build both binaries, Docker images and even customize your own Kubernetes deployment. 
 ### :hash: Binaries
 Building standalone binaries is way easier and all you need is a simple
  ```bash
