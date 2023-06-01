@@ -39,7 +39,7 @@ Basically, that's the name we refer to each plug-in talking with the InterLink l
     ```
     Output files will be created within the bin folder.
 
-- Now you have your VK running and you have built needed binaries, specify in the configuration file named InterLinkConfig.yaml, located under ./config, which service (Slurm/Docker for the moment) you want to use. You only have to set the SidecarService to either "docker" or "slurm". Check the [InterLink Config File](#wrench-interlink-config-file) section for a detailed explanation of each value in the file.
+- Now you have your VK running and you have built needed binaries, specify in the configuration file named InterLinkConfig.yaml, located under ./config, which service (Slurm/Docker for the moment) you want to use. You only have to set the SidecarService to either "docker" or "slurm". Check the [InterLink Config File](#information_source-interlink-config-file) section for a detailed explanation of each value in the file.
 - Run your InterLink and Sidecar executables. You are now running:
     - A Virtual Kubelet
     - The InterLink service
@@ -81,11 +81,31 @@ Since ideally the Virtual Kubelet runs into a Docker Container orchestred by a K
     - args: These are the arguments passed to the VK binary running inside the container.
     - env: Environment Variables used by kubelet and by the VK itself. Check the ENVS list for a detailed explanation on how to set them.
 - knoc-cfg.json: it's the config file for the VK itself. Here you can specify how many resources to allocate for the VK. Note that the name specified here for the VK must match the name given in the others config files.
-- InterLinkConfig.yaml: configuration file for the inbound/outbound communication (and not only) to/from the InterLink module. For a detailed explanation of all fields, check the [InterLink Config File](#wrench-interlink-config-file) section.
+- InterLinkConfig.yaml: configuration file for the inbound/outbound communication (and not only) to/from the InterLink module. For a detailed explanation of all fields, check the [InterLink Config File](#information_source-interlink-config-file) section.
 If you perform any change to the listed files, you will have to
 ```bash
 kubectl apply -n vk -k ./kustomizations
 ```
+You can also use Environment Variables to overwrite the majority of default values and even the ones configured in the InterLink Config file. Check the [Environment Variables list](#information_source-environment-variables-list) for a detailed explanation.
 
-### :wrench: InterLink Config file
-something something
+### :information_source: InterLink Config file
+Detailed explanation of the InterLink config file key values.
+- InterlinkURL -> the URL to allow the Virtual Kubelet to contact the InterLink module. 
+- SidecarURL -> the URL to allow InterLink to communicate with the Sidecar module (docker, slurm, etc). Do not specify port here
+- InterlinkPort -> the Interlink listening port. InterLink and VK will communicate over this port.
+- SidecarService -> the sidecar service. At the moment, it can be only "slurm" or "docker". According to the specified service, InterLink will automatically set the listening port to 4000 for Docker and 4001 for Slurm. set $SIDECARPORT environment variable to specify a custom one
+- CommandPrefix -> here you can specify a prefix for the programmatically generated script (for the slurm plugin). Basically, if you want to run anything before the script itself, put it here.
+- Tsocks -> true or false values only. Enables or Disables the use of tsocks library to allow proxy networking. Only implemented for the Slurm sidecar at the moment.
+- TsocksPath -> path to your tsocks library.
+- TsocksLoginNode -> specify an existing node to ssh to. It will be your "window to the external world"
+
+### :information_source: Environment Variables list
+Here's the complete list of every customizable environment variable. When specified, it overwrites the listed key within the InterLink config file.
+- $INTERLINKURL -> the URL to allow the Virtual Kubelet to contact the InterLink module. Do not specify a port here. Overwrites InterlinkURL.
+- $INTERLINKPORT -> the InterLink listening port. InterLink and VK will communicate over this port. Overwrites InterlinkPort.
+- $INTERLINKCONFIGPATH -> your config file path
+- $SIDECARURL -> the URL to allow InterLink to communicate with the Sidecar module (docker, slurm, etc). Do not specify port here. Overwrites SidecarURL.
+- $SIDECARPORT -> the Sidecar listening port. Docker default is 4000, Slurm default is 4001.
+- $SIDECARSERVICE -> can be "docker" or "slurm" only (for the moment). If SIDECARPORT is not set, will set Sidecar Port in the code to default settings. Overwrites SidecarService.
+- $TSOCKS -> true or false, to use tsocks library allowing proxy networking. Working on Slurm sidecar at the moment. Overwrites Tsocks.
+- $TSOCKSPATH -> path to your tsocks library. Overwrites TsocksPath.
