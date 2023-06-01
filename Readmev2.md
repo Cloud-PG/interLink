@@ -25,6 +25,13 @@ Basically, that's the name we refer to each plug-in talking with the InterLink l
 - Docker
 - Sbatch, Scancel and Squeue (Slurm environment) for the Slurm sidecar
 
+## Quick references:
+- [Quick Start](#fast_forward-quick-start)
+- [Building from sources](#hammer-building-from-sources)
+- [Kustomize your Virtual Kubelet](#wrench-kustomizing-your-virtual-kubelet)
+- [InterLink Config file](#information_source-interlink-config-file)
+- [Environment Variables list](#information_source-environment-variables-list)
+
 ## :fast_forward: Quick Start
 - Fastest way to start using interlink, is by deploying a VK in Kubernetes using the prebuilt image:
     ```bash
@@ -77,9 +84,9 @@ It's basically building a Docker image with additional steps. After [building yo
 kubectl create ns vk
 kubectl kustomize ./kustomizations
 ```
-Then, simply apply
+Then, simply apply. Remember to specify the correct namespace.
 ```bash
-kubectl apply -f examples/interlink_mock/payloads/busyecho_k8s.yaml -n vk
+kubectl apply -n vk -k ./kustomizations
 ```
 After pushing the image, edit the deployment.yaml file, located inside the kustomization sub-folder, to reflect the new image name. Check the [Kustomizing your Virtual Kubelet](#wrench-kustomizing-your-Virtual-Kubelet) section for more informations on how to customize your VK deployment.
 
