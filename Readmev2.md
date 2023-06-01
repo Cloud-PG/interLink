@@ -39,7 +39,7 @@ Basically, that's the name we refer to each plug-in talking with the InterLink l
     ```
     Output files will be created within the bin folder.
 
-- Now you have your VK running and you have built needed binaries, specify in the configuration file named InterLinkConfig.yaml, located under ./config, which service (Slurm/Docker for the moment) you want to use. You only have to set the SidecarService to either "docker" or "slurm". Other options will be explained later.
+- Now you have your VK running and you have built needed binaries, specify in the configuration file named InterLinkConfig.yaml, located under ./config, which service (Slurm/Docker for the moment) you want to use. You only have to set the SidecarService to either "docker" or "slurm". Check the [InterLink Config File](#wrench-interlink-config-file) section for a detailed explanation of each value in the file.
 - Run your InterLink and Sidecar executables. You are now running:
     - A Virtual Kubelet
     - The InterLink service
@@ -70,7 +70,7 @@ Building Docker Images is still simple, but requires 'a little' more effort.
     docker build -t *your docker hub username*/vk:latest -f Dockerfile.vk .
     docker push *your docker hub username*/vk:latest
     ```
-- After pushing the image, edit the deployment.yaml file, located inside the kustomization sub-folder, to reflect the new image name. Check the [Kustomizing your Virtual Kubelet](#wrench-Kustomizing-your-Virtual-Kubelet) section for more informations on how to customize your VK deployment.
+- After pushing the image, edit the deployment.yaml file, located inside the kustomization sub-folder, to reflect the new image name. Check the [Kustomizing your Virtual Kubelet](#wrench-kustomizing-your-Virtual-Kubelet) section for more informations on how to customize your VK deployment.
 
 ### :wrench: Kustomizing your Virtual Kubelet
 Since ideally the Virtual Kubelet runs into a Docker Container orchestred by a Kubernetes cluster, it is possible to customize your deployment by editing configuration files within the kustomizations directory:
@@ -81,8 +81,11 @@ Since ideally the Virtual Kubelet runs into a Docker Container orchestred by a K
     - args: These are the arguments passed to the VK binary running inside the container.
     - env: Environment Variables used by kubelet and by the VK itself. Check the ENVS list for a detailed explanation on how to set them.
 - knoc-cfg.json: it's the config file for the VK itself. Here you can specify how many resources to allocate for the VK. Note that the name specified here for the VK must match the name given in the others config files.
-- InterLinkConfig.yaml: configuration file for the inbound/outbound communication (and not only) to/from the InterLink module. For a detailed explanation of all fields, check the InterLink Config File section
+- InterLinkConfig.yaml: configuration file for the inbound/outbound communication (and not only) to/from the InterLink module. For a detailed explanation of all fields, check the [InterLink Config File](#wrench-interlink-config-file) section.
 If you perform any change to the listed files, you will have to
 ```bash
 kubectl apply -n vk -k ./kustomizations
 ```
+
+### :wrench: InterLink Config file
+something something
