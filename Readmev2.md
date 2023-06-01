@@ -61,7 +61,7 @@ Note: I will soon update the quick start section to only use docker images / k8s
 ## :hammer: Building from sources
 It is possible you need to perform some adjustments or any modification to the source code and you want to rebuild it. You can both binaries, Docker images and even customize your own Kubernetes deployment. 
 ### :hash: Binaries
-Building standalone binaries is way simpler and all you need is a simple
+Building standalone binaries is way easier and all you need is a simple
  ```bash
 make all
 ```
