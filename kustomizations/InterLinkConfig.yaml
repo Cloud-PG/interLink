@@ -5,5 +5,4 @@ SidecarService: "slurm" #docker, slurm
 CommandPrefix: ""
 Tsocks: false
 TsocksPath: "$WORK/tsocks-1.8beta5+ds1/libtsocks.so"
-TsocksConfig: "$HOME/.tsocks.conf"
 TsocksLoginNode: "login01"

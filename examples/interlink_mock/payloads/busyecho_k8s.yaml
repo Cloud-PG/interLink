@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: testvk
   annotations:
-    slurm-job.knoc.io/flags: "-A INF23_lhc_0  --job-name=TEST_KNOC -p m100_usr_prod -t 1440 --gres=\"gpu:0\" --cpus-per-task=1"
+    slurm-job.knoc.io/flags: "--job-name=testvkub  -t 2800  --ntasks=8 --nodes=1 --mem-per-cpu=2000"
 spec:
   restartPolicy: OnFailure 
   containers:

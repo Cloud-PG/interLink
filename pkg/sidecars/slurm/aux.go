@@ -64,10 +64,9 @@ func prepare_mounts(container v1.Container) []string {
 		mount_data += path
 	}
 	path_hardcoded := ("/cvmfs/grid.cern.ch/etc/grid-security:/etc/grid-security" + "," +
-		"/m100_scratch/userexternal/dspiga00:/m100_scratch/userexternal/dspiga00" + "," +
-		"/m100_work:/m100_work" + "," +
 		"/cvmfs:/cvmfs" + "," +
-		"/m100_work/INF23_lhc_0/CMS/SITECONF:/marconi_work/Pra18_4658/cms/SITECONF" + ",")
+		"/exa5/scratch/user/spigad" + "," +
+		"/exa5/scratch/user/spigad/CMS/SITECONF" + ",")
 	mount_data += path_hardcoded
 	if last := len(mount_data) - 1; last >= 0 && mount_data[last] == ',' {
 		mount_data = mount_data[:last]

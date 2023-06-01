@@ -8,8 +8,8 @@ const (
 	RUNNING = 0
 	STOP    = 1
 	UNKNOWN = 2
-	SBATCH  = "/opt/slurm/current/bin/sbatch"
-	SCANCEL = "/opt/slurm/current/bin/scancel"
+	SBATCH  = "/usr/bin/sbatch"
+	SCANCEL = "/usr/bin/sbatch"
 )
 
 type PodName struct {
