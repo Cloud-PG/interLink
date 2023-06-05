@@ -129,7 +129,7 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 		"\n#SBATCH --job-name=" + container.Name +
 		sbatch_flags_as_string +
 		"\n. ~/.bash_profile" +
-		"\nmodule load singularity" +
+		//"\nmodule load singularity" +
 		"\nexport SINGULARITYENV_SINGULARITY_TMPDIR=$CINECA_SCRATCH" +
 		"\nexport SINGULARITYENV_SINGULARITY_CACHEDIR=$CINECA_SCRATCH" +
 		"\npwd; hostname; date" +
