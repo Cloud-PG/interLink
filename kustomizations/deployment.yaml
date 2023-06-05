@@ -26,7 +26,7 @@ spec:
         - --provider
         - knoc
         - --provider-config
-        - /home/user0/knoc-cfg.json
+        - $VK_CONFIG_PATH
         - --startup-timeout
         - 10s
         - --klog.v
@@ -43,12 +43,14 @@ spec:
               fieldPath: status.podIP
         - name: INTERLINKCONFIGPATH
           value: "/etc/interlink/InterLinkConfig.yaml"
+        - name: VK_CONFIG_PATH
+          value: "/etc/interlink/knoc-cfg.json"
         volumeMounts:
         - name: config
           mountPath: /etc/interlink/InterLinkConfig.yaml
           subPath: InterLinkConfig.yaml
         - name: config-json
-          mountPath: /home/user0/knoc-cfg.json
+          mountPath: /etc/interlink/knoc-cfg.json
           subPath: knoc-cfg.json
       serviceAccountName: knoc
       volumes:

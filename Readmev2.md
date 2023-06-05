@@ -41,22 +41,18 @@ Basically, that's the name we refer to each plug-in talking with the InterLink l
     kubectl apply -n vk -k ./kustomizations
     ```
 
-- Build InterLink and Sidecars binaries by simply using make:
+- Then, use Docker Compose to create and start up containers:
     ```bash
-    make all
+    docker compose -f docker-compose.yaml up -d
     ```
-    Output files will be created within the bin folder.
-
-- Now you have your VK running and you have built needed binaries, specify in the configuration file named InterLinkConfig.yaml, located under ./config, which service (Slurm/Docker for the moment) you want to use. You only have to set the SidecarService to either "docker" or "slurm". Check the [InterLink Config File](#information_source-interlink-config-file) section for a detailed explanation of each value in the file.
-- Run your InterLink and Sidecar executables. You are now running:
+- You are now running:
     - A Virtual Kubelet
     - The InterLink service
-    - A Sidecar
+    - A Slurm Sidecar
 - Submit a YAML to your K8S cluster to test it. You could try:
     ```bash
     kubectl apply -f examples/interlink_mock/payloads/busyecho_k8s.yaml -n vk
     ```
-Note: I will soon update the quick start section to only use docker images / k8s deployments
 
 ## :hammer: Building from sources
 It is possible you need to perform some adjustments or any modification to the source code and you want to rebuild it. You can build both binaries, Docker images and even customize your own Kubernetes deployment. 
@@ -70,18 +66,18 @@ If you want to only build a component, replace 'all' with vk/interlink/sidecars 
 
 ### :whale2: Docker images
 Building Docker Images is still simple, but requires 'a little' more effort.
-- First of all, login into your Docker Hub account
-    ```bash
-    docker login
-    ```
+- First of all, login into your Docker Hub account by ```docker login```
 - Then you can build and push your new images to your Docker Hub. Remember to specify the correct Dockerfile, according to your needs; here's an example with the Virtual Kubelet image:
     ```bash
     docker build -t *your docker hub username*/vk:latest -f Dockerfile.vk .
     docker push *your docker hub username*/vk:latest
     ```
+    Note: After pushing the image, edit the deployment.yaml file, located inside the kustomization sub-folder, to reflect the new image name. Check the [Kustomizing your Virtual Kubelet](#wrench-kustomizing-your-Virtual-Kubelet) section for more informations on how to customize your VK deployment.
 
-### :electron: Kubernetes deployment
-It's basically building a Docker image with additional steps. After [building your images](#whale2-docker-images), just deploy them. If you haven't already created the proper namespace, do it now and apply your kustomizations:
+You can now run these images standalone with ```docker run *image_tag*``` or you can choose to use Docker Compose, by checking the [Docker Compose](#whale2-docker-compose-interlink-and-sidecars) section.
+
+### :electron: Kubernetes deployment (VK)
+It's basically building a Docker image with additional steps. After [building your image](#whale2-docker-images), you only have to deploy it. If you haven't already created the proper namespace, do it now and apply your kustomizations:
 ```bash
 kubectl create ns vk
 kubectl kustomize ./kustomizations
@@ -90,10 +86,15 @@ Then, simply apply. Remember to specify the correct namespace.
 ```bash
 kubectl apply -n vk -k ./kustomizations
 ```
-After pushing the image, edit the deployment.yaml file, located inside the kustomization sub-folder, to reflect the new image name. Check the [Kustomizing your Virtual Kubelet](#wrench-kustomizing-your-Virtual-Kubelet) section for more informations on how to customize your VK deployment.
 
-### :question: Usage
-TO BE DONE
+### :whale2: Docker Compose (InterLink and Sidecars)
+If you are reading this section, it's probably because you rebuilt your Docker Images to reflect some changes.
+First of all, keep in mind the docker-compose.yaml is a sample file we provided to have a quick start setup, but it's customizable according to any need.
+This file is default defining 2 services: the interlink service and the slurm sidecar service. If you rebuilt any of these images, you have to edit the image field to allow docker to be pull the new one from your repo.
+After editing it, you can easily start up your container bu running
+```bash
+docker compose -f docker-compose.yaml up -d
+```
 
 ### :wrench: Kustomizing your Virtual Kubelet
 Since ideally the Virtual Kubelet runs into a Docker Container orchestred by a Kubernetes cluster, it is possible to customize your deployment by editing configuration files within the kustomizations directory:
@@ -111,6 +112,32 @@ kubectl apply -n vk -k ./kustomizations
 ```
 You can also use Environment Variables to overwrite the majority of default values and even the ones configured in the InterLink Config file. Check the [Environment Variables list](#information_source-environment-variables-list) for a detailed explanation.
 
+### :question: Usage
+You have two possible ways to use it:
+- VK: binary or K8S deployment
+- InterLink / Sidecars: binaries or Docker container
+
+Since K8S deployment and Docker containers have been explained on how to be deployed in the above sections ([Kubernetes deployment](#electron-kubernetes-deployment-vk), [Docker Compose](#whale2-docker-compose-interlink-and-sidecars)), this section will be about using raw binaries. Remember you can, for example, deploy a VK on a Kubernetes cluster and use binaries for InterLink and Sidecars, if you need a quick test bench, instead of rebuilding images everytime.
+
+#### Virtual Kubelet
+VK's binary has to be used in the form of ```vk [args]```. A list of complete arguments con be found with the ```--help``` flag, but here the most important will be listed:
+- --nodename -> the name of the node inside the K8S cluster
+- --provider -> the provider for the VK. We use knoc
+- --provider-config -> path to the config for the VK provider
+- --startup-timeout -> how much time to wait at the node startup before a timeout error
+- --kubeconfig -> path to your Kubernetes cluster configuration. Omit it if you run it as container in your K8S deployment
+
+To give you a reference, our typical startup command was:
+```bash
+vk --nodename vk-knoc-debug --provider knoc --provider-config ./kustomizations/knoc-cfg.json --startup-timeout 10s --klog.v "2" --kubeconfig /home/surax/.k3d/kubeconfig-mycluster.yaml --klog.logtostderr --log-level debug
+```
+With the above command, you will have a running Virtual Kubelet, waiting for Pods to be registered to. Once at least one Pod will be registered, the VK will begin communicating with the InterLink module on port 3000 (by default. Customizable by editing the InterLink config file) using REST APIs. 
+
+Note: remember to run VK, InterLink and a Sidecar before registering any Pod, otherwise you will get HTTPS errors, since there will be a missing reply from at least one component.
+
+#### InterLink / Sidecars
+InterLink and Sidecars do not want any argument (for the moment, at least), since any customization is performed through the InterLink config file or by setting the relative Environment Variables. Simply run the InterLink executable and a Sidecar one. Once at least one Pod will be registered, the InterLink will begin communicating with the VK on port 3000 and with Sidecars on ports 4000/4001 (4000 for Docker, 4001 for Slurm. Clearly, default port can be modified using the InterLink config file) through REST APIs.
+
 ### :information_source: InterLink Config file
 Detailed explanation of the InterLink config file key values.
 - InterlinkURL -> the URL to allow the Virtual Kubelet to contact the InterLink module. 
@@ -124,9 +151,10 @@ Detailed explanation of the InterLink config file key values.
 
 ### :information_source: Environment Variables list
 Here's the complete list of every customizable environment variable. When specified, it overwrites the listed key within the InterLink config file.
+- VK_CONFIG_PATH -> VK config file path
 - $INTERLINKURL -> the URL to allow the Virtual Kubelet to contact the InterLink module. Do not specify a port here. Overwrites InterlinkURL.
 - $INTERLINKPORT -> the InterLink listening port. InterLink and VK will communicate over this port. Overwrites InterlinkPort.
-- $INTERLINKCONFIGPATH -> your config file path
+- $INTERLINKCONFIGPATH -> your InterLink config file path. Default is ./kustomizations/InterLinkConfig.yaml
 - $SIDECARURL -> the URL to allow InterLink to communicate with the Sidecar module (docker, slurm, etc). Do not specify port here. Overwrites SidecarURL.
 - $SIDECARPORT -> the Sidecar listening port. Docker default is 4000, Slurm default is 4001.
 - $SIDECARSERVICE -> can be "docker" or "slurm" only (for the moment). If SIDECARPORT is not set, will set Sidecar Port in the code to default settings. Overwrites SidecarService.

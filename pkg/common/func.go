@@ -17,7 +17,7 @@ func NewInterLinkConfig() {
 		if os.Getenv("INTERLINKCONFIGPATH") != "" {
 			path = os.Getenv("INTERLINKCONFIGPATH")
 		} else {
-			path = "config/InterLinkConfig.yaml"
+			path = "/etc/interlink/InterLinkConfig.yaml"
 		}
 
 		if _, err := os.Stat(path); err != nil {
