@@ -2,7 +2,7 @@
 
 #export INTERLINKCONFIGPATH="$PWD/kustomizations/InterLinkConfig.yaml"
 
-VERSION="${VERSION:-0.0.3}"
+VERSION="${VERSION:-0.0.4}"
 
 OS=$(uname -s)
 
@@ -43,9 +43,16 @@ install () {
     rm interlink.tar.gz
 
     ## Download oauth2 proxy
-    curl -L -o oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v7.4.0/oauth2-proxy-v7.4.0.${OS_LOWER}-$(uname -m).tar.gz
-    tar -xzvf oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz -C $HOME/.local/interlink/bin/
-    rm oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz
+    case "$OS" in
+    Darwin)
+        go install github.com/oauth2-proxy/oauth2-proxy/v7@latest
+        ;;
+    Linux)
+        curl -L -o oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v7.4.0/oauth2-proxy-v7.4.0.${OS_LOWER}-$(uname -m).tar.gz
+        tar -xzvf oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz -C $HOME/.local/interlink/bin/
+        rm oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz
+        ;;
+    esac
 
 }
 
@@ -80,7 +87,7 @@ start () {
     $HOME/.local/interlink/bin/interlink &> $HOME/.local/interlink/logs/interlink.log &
     echo $! > $HOME/.local/interlink/interlink.pid
 
-    $HOME/.local/interlink/bin/intertlink-sidecar-slurm  &> $HOME/.local/interlink/logs/slurm-sd.log &
+    $HOME/.local/interlink/bin/interlink-sidecar-slurm  &> $HOME/.local/interlink/logs/slurm-sd.log &
     echo $! > $HOME/.local/interlink/slurm-sd.pid
 }
 
