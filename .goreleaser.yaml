@@ -16,7 +16,7 @@ builds:
       - arm64
       - amd64
       - ppc64le
-  - id: "intertlink"
+  - id: "interlink"
     binary: intertlink
     env:
       - CGO_ENABLED=0

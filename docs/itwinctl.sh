@@ -2,6 +2,21 @@
 
 #export INTERLINKCONFIGPATH="$PWD/kustomizations/InterLinkConfig.yaml"
 
+VERSION="${VERSION:-0.0.3}"
+
+OS=$(uname -s)
+
+case "$OS" in
+    Darwin)
+        OS=MacOS
+        ;;
+esac
+
+#echo $OS
+
+OS_LOWER=$(uname -s  | tr '[:upper:]' '[:lower:]')
+#echo $OS_LOWER
+
 OIDC_ISSUER="${OIDC_ISSUER:-https://dodas-iam.cloud.cnaf.infn.it/}"
 AUTHORIZED_GROUPS="${AUTHORIZED_GROUPS:-intw}"
 AUTHORIZED_AUD="${AUTHORIZED_AUD:-intertw-vk}"
@@ -13,6 +28,8 @@ INTERLINKPORT="${INTERLINKPORT:-3000}"
 INTERLINKURL="${INTERLINKURL:-http://0.0.0.0}"
 INTERLINKCONFIGPATH="${INTERLINKCONFIGPATH:-$HOME/.config/interlink/InterLinkConfig.yaml}"
 
+export INTERLINKCONFIGPATH=$INTERLINKCONFIGPATH
+
 install () {
     mkdir -p $HOME/.local/interlink/logs || exit 1
     mkdir -p $HOME/.local/interlink/bin || exit 1
@@ -21,22 +38,23 @@ install () {
     curl -o $HOME/.config/interlink/InterLinkConfig.yaml https://raw.githubusercontent.com/Cloud-PG/interLink/main/kustomizations/InterLinkConfig.yaml
 
     ## Download binaries to $HOME/.local/interlink/bin
-    curl -L -o interlink.tar.gz https://github.com/Cloud-PG/interLink/releases/download/v0.0.2/interLink_0.0.2_Linux_$(uname -m).tar.gz \
+    curl -L -o interlink.tar.gz https://github.com/Cloud-PG/interLink/releases/download/v${VERSION}/interLink_${VERSION}_${OS}_$(uname -m).tar.gz \
         && tar -xzvf interlink.tar.gz -C $HOME/.local/interlink/bin/
     rm interlink.tar.gz
 
     ## Download oauth2 proxy
-    curl -L -o oauth2-proxy-v7.4.0.linux-$(uname -m).tar.gz https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v7.4.0/oauth2-proxy-v7.4.0.linux-$(uname -m).tar.gz
-    tar -xzvf oauth2-proxy-v7.4.0.linux-$(uname -m).tar.gz -C $HOME/.local/interlink/bin/
-    rm oauth2-proxy-v7.4.0.linux-$(uname -m).tar.gz
+    curl -L -o oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v7.4.0/oauth2-proxy-v7.4.0.${OS_LOWER}-$(uname -m).tar.gz
+    tar -xzvf oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz -C $HOME/.local/interlink/bin/
+    rm oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz
 
 }
 
 start () {
     ## Set oauth2 proxy config
-    $HOME/.local/interlink/bin/oauth2-proxy-v7.4.0.linux-$(uname -m)/oauth2-proxy \
+    #$HOME/.local/interlink/bin/oauth2-proxy-v7.4.0.linux-$(uname -m)/oauth2-proxy \
+    oauth2-proxy \
         --client-id DUMMY \
-        --client-secret DUMMY \ 
+        --client-secret DUMMY \
         --http-address http://0.0.0.0:$API_HTTP_PORT \
         --oidc-issuer-url $OIDC_ISSUER \
         --pass-authorization-header true \
@@ -51,6 +69,9 @@ start () {
         --cookie-secret 2ISpxtx19fm7kJlhbgC4qnkuTlkGrshY82L3nfCSKy4= \
         --skip-auth-route="*='*'" \
         --skip-jwt-bearer-tokens true &> $HOME/.local/interlink/logs/oauth2-proxy.log &
+        # --https-address http://0.0.0.0:$API_HTTPS_PORT \
+        # --tls-cert-file $HOME/.local/interlink/cert.pem \
+        # --tls-key-file $HOME/.local/interlink/key.pem \
 
     echo $! > $HOME/.local/interlink/oauth2-proxy.pid
 
@@ -80,6 +101,7 @@ case "$1" in
         stop
         ;;
     restart)
-        username=${OPTARG}
+        stop
+        start
         ;;
 esac
