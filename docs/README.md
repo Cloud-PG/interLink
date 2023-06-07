@@ -13,7 +13,9 @@ curl -sfL https://cloud-pg.github.io/interLink/itwinctl.sh | sh -s - start
 
 ### Restart daemons
 
+```bash
 curl -sfL https://cloud-pg.github.io/interLink/itwinctl.sh | sh -s - restart
+```
 
 ### Stop daemons
 
