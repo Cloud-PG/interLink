@@ -1,8 +1,6 @@
 #!/bin/bash
 
-
-
-export INTERLINKCONFIGPATH="$PWD/kustomizations/InterLinkConfig.yaml"
+#export INTERLINKCONFIGPATH="$PWD/kustomizations/InterLinkConfig.yaml"
 
 OIDC_ISSUER="${OIDC_ISSUER:-https://dodas-iam.cloud.cnaf.infn.it/}"
 AUTHORIZED_GROUPS="${AUTHORIZED_GROUPS:-intw}"
@@ -23,11 +21,7 @@ install () {
     curl -o $HOME/.config/interlink/InterLinkConfig.yaml https://raw.githubusercontent.com/Cloud-PG/interLink/main/kustomizations/InterLinkConfig.yaml
 
     ## Download binaries to $HOME/.local/interlink/bin
-    echo "https://github.com/Cloud-PG/interLink/releases/download/v0.0.1/intertlink-sidecar-slurm_0.0.1_Linux_$(uname -m).tar.gz"
-    curl -L -o slurm.tar.gz https://github.com/Cloud-PG/interLink/releases/download/v0.0.1/intertlink-sidecar-slurm_0.0.1_Linux_$(uname -m).tar.gz \
-        && tar -xzvf slurm.tar.gz -C $HOME/.local/interlink/bin/
-    rm slurm.tar.gz 
-    curl -L -o interlink.tar.gz https://github.com/Cloud-PG/interLink/releases/download/v0.0.1/intertlink_0.0.1_Linux_$(uname -m).tar.gz \
+    curl -L -o interlink.tar.gz https://github.com/Cloud-PG/interLink/releases/download/v0.0.2/interLink_0.0.2_Linux_$(uname -m).tar.gz \
         && tar -xzvf interlink.tar.gz -C $HOME/.local/interlink/bin/
     rm interlink.tar.gz
 
@@ -40,7 +34,7 @@ install () {
 
 start () {
     ## Set oauth2 proxy config
-    $HOME/.local/interlink/bin/oauth2-proxy \
+    $HOME/.local/interlink/bin/oauth2-proxy-v7.4.0.linux-$(uname -m)/oauth2-proxy \
         --client-id DUMMY \
         --client-secret DUMMY \ 
         --http-address http://0.0.0.0:$API_HTTP_PORT \
@@ -65,7 +59,7 @@ start () {
     $HOME/.local/interlink/bin/interlink &> $HOME/.local/interlink/logs/interlink.log &
     echo $! > $HOME/.local/interlink/interlink.pid
 
-    $HOME/.local/interlink/bin/slurm-sd  &> $HOME/.local/interlink/logs/slurm-sd.log &
+    $HOME/.local/interlink/bin/intertlink-sidecar-slurm  &> $HOME/.local/interlink/logs/slurm-sd.log &
     echo $! > $HOME/.local/interlink/slurm-sd.pid
 }
 
