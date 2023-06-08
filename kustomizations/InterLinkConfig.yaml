@@ -1,9 +1,10 @@
+VKTokenFile: "/opt/interlink/token"
 InterlinkURL: "http://localhost"
 SidecarURL: "http://localhost"
 InterlinkPort: "3000"
 SidecarService: "slurm" #docker, slurm
 SbatchPath: "/usr/bin/sbatch"
-ScancelPath: "/usr/bin/sbatch"
+ScancelPath: "/usr/bin/scancel"
 CommandPrefix: ""
 Tsocks: false
 TsocksPath: "$WORK/tsocks-1.8beta5+ds1/libtsocks.so"

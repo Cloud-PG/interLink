@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	common "github.com/CARV-ICS-FORTH/knoc/common"
@@ -18,7 +20,7 @@ import (
 
 var NoReq uint8
 
-func createRequest(pod commonIL.Request) []byte {
+func createRequest(pod commonIL.Request, token string) []byte {
 	var returnValue, _ = json.Marshal(commonIL.PodStatus{PodStatus: commonIL.UNKNOWN})
 
 	bodyBytes, err := json.Marshal(pod)
@@ -29,6 +31,7 @@ func createRequest(pod commonIL.Request) []byte {
 		log.L.Error(err)
 	}
 
+	req.Header.Add("Authorization", "Bearer "+token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.L.Error(err)
@@ -41,7 +44,7 @@ func createRequest(pod commonIL.Request) []byte {
 	return returnValue
 }
 
-func deleteRequest(pod commonIL.Request) []byte {
+func deleteRequest(pod commonIL.Request, token string) []byte {
 	var returnValue, _ = json.Marshal(commonIL.PodStatus{PodStatus: commonIL.UNKNOWN})
 
 	bodyBytes, err := json.Marshal(pod)
@@ -51,6 +54,7 @@ func deleteRequest(pod commonIL.Request) []byte {
 		log.L.Error(err)
 	}
 
+	req.Header.Add("Authorization", "Bearer "+token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.L.Error(err)
@@ -63,7 +67,7 @@ func deleteRequest(pod commonIL.Request) []byte {
 	return returnValue
 }
 
-func statusRequest(podsList commonIL.Request) []byte {
+func statusRequest(podsList commonIL.Request, token string) []byte {
 	var returnValue []byte
 	var response []commonIL.StatusResponse
 
@@ -75,6 +79,8 @@ func statusRequest(podsList commonIL.Request) []byte {
 	}
 
 	log.L.Println(string(bodyBytes))
+
+	req.Header.Add("Authorization", "Bearer "+token)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -91,10 +97,16 @@ func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, 
 	var req commonIL.Request
 	req.Pods = map[string]*v1.Pod{pod.Name: pod}
 
+	b, err := os.ReadFile(commonIL.InterLinkConfigInst.VKTokenFile) // just pass the file name
+	if err != nil {
+		fmt.Print(err)
+	}
+	token := string(b)
+
 	switch mode {
 	case common.CREATE:
 		//v1.Pod used only for secrets and volumes management; TO BE IMPLEMENTED
-		returnVal := createRequest(req)
+		returnVal := createRequest(req, token)
 		log.L.Println(string(returnVal))
 		break
 
@@ -102,7 +114,7 @@ func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, 
 		if NoReq > 0 {
 			NoReq--
 		} else {
-			returnVal := deleteRequest(req)
+			returnVal := deleteRequest(req, token)
 			log.L.Println(string(returnVal))
 		}
 		break
@@ -110,7 +122,7 @@ func RemoteExecution(p *VirtualKubeletProvider, ctx context.Context, mode int8, 
 	return nil
 }
 
-func checkPodsStatus(p *VirtualKubeletProvider, ctx context.Context) {
+func checkPodsStatus(p *VirtualKubeletProvider, ctx context.Context, token string) {
 	if len(p.pods) == 0 {
 		return
 	}
@@ -119,7 +131,7 @@ func checkPodsStatus(p *VirtualKubeletProvider, ctx context.Context) {
 	var PodsList commonIL.Request
 	PodsList.Pods = p.pods
 
-	returnVal = statusRequest(PodsList)
+	returnVal = statusRequest(PodsList, token)
 	json.Unmarshal(returnVal, &ret)
 
 	for podIndex, podStatus := range ret.PodStatus {

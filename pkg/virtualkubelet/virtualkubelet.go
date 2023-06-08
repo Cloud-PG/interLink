@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/CARV-ICS-FORTH/knoc"
@@ -573,6 +574,12 @@ func (p *VirtualKubeletProvider) statusLoop(ctx context.Context) {
 		<-t.C
 	}
 
+	b, err := os.ReadFile(commonIL.InterLinkConfigInst.VKTokenFile) // just pass the file name
+	if err != nil {
+		fmt.Print(err)
+	}
+	token := string(b)
+
 	for {
 		t.Reset(5 * time.Second)
 		select {
@@ -581,7 +588,12 @@ func (p *VirtualKubeletProvider) statusLoop(ctx context.Context) {
 		case <-t.C:
 		}
 
-		checkPodsStatus(p, ctx)
+		b, err = os.ReadFile(commonIL.InterLinkConfigInst.VKTokenFile) // just pass the file name
+		if err != nil {
+			fmt.Print(err)
+		}
+		token = string(b)
+		checkPodsStatus(p, ctx, token)
 	}
 }
 

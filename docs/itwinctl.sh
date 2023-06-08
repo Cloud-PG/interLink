@@ -2,7 +2,7 @@
 
 #export INTERLINKCONFIGPATH="$PWD/kustomizations/InterLinkConfig.yaml"
 
-VERSION="${VERSION:-0.0.4}"
+VERSION="${VERSION:-0.0.5}"
 
 OS=$(uname -s)
 
@@ -30,13 +30,14 @@ AUTHORIZED_GROUPS="${AUTHORIZED_GROUPS:-intw}"
 AUTHORIZED_AUD="${AUTHORIZED_AUD:-intertw-vk}"
 API_HTTP_PORT="${API_HTTP_PORT:-8080}"
 API_HTTPS_PORT="${API_HTTPS_PORT:-443}"
-INTERLINKPORT="${INTERLINKPORT:-3000}"
-INTERLINKURL="${INTERLINKURL:-http://0.0.0.0}"
-INTERLINKPORT="${INTERLINKPORT:-3000}"
-INTERLINKURL="${INTERLINKURL:-http://0.0.0.0}"
-INTERLINKCONFIGPATH="${INTERLINKCONFIGPATH:-$HOME/.config/interlink/InterLinkConfig.yaml}"
+export INTERLINKPORT="${INTERLINKPORT:-3000}"
+export INTERLINKURL="${INTERLINKURL:-http://0.0.0.0}"
+export INTERLINKPORT="${INTERLINKPORT:-3000}"
+export INTERLINKURL="${INTERLINKURL:-http://0.0.0.0}"
+export INTERLINKCONFIGPATH="${INTERLINKCONFIGPATH:-$HOME/.config/interlink/InterLinkConfig.yaml}"
+export SBATCHPATH="${SBATCHPATH:-/usr/bin/sbatch}"
+export SCANCELPATH="${SCANCELPATH:-/usr/bin/scancel}"
 
-export INTERLINKCONFIGPATH=$INTERLINKCONFIGPATH
 
 install () {
     mkdir -p $HOME/.local/interlink/logs || exit 1
@@ -119,4 +120,6 @@ case "$1" in
         stop
         start
         ;;
+    uninstall)
+        rm -r $HOME/.local/interlink
 esac

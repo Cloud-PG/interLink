@@ -29,6 +29,7 @@ type Request struct {
 }
 
 type InterLinkConfig struct {
+	VKTokenFile    string `yaml:"VKTokenFile"`
 	Interlinkurl   string `yaml:"InterlinkURL"`
 	Sidecarurl     string `yaml:"SidecarURL"`
 	Sbatchpath     string `yaml:"SbatchPath"`

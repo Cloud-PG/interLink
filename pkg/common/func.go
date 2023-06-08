@@ -102,6 +102,19 @@ func NewInterLinkConfig() {
 			InterLinkConfigInst.Tsockspath = path
 		}
 
+		if os.Getenv("VKTOKENFILE") != "" {
+			path := os.Getenv("VKTOKENFILE")
+			if _, err := os.Stat(path); err != nil {
+				log.Println("File " + path + " doesn't exist. You can set a custom path by exporting VKTOKENFILE. Exiting...")
+				os.Exit(-1)
+			}
+
+			InterLinkConfigInst.VKTokenFile = path
+		} else {
+			path = "/tmp/token"
+			InterLinkConfigInst.VKTokenFile = path
+		}
+
 		InterLinkConfigInst.set = true
 	}
 }
