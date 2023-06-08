@@ -12,6 +12,14 @@ case "$OS" in
         ;;
 esac
 
+OSARCH=$(uname -m)
+case "$OSARCH" in
+    x86_64)
+        OSARCH=amd64
+        ;;
+esac
+
+
 #echo $OS
 
 OS_LOWER=$(uname -s  | tr '[:upper:]' '[:lower:]')
@@ -48,9 +56,10 @@ install () {
         go install github.com/oauth2-proxy/oauth2-proxy/v7@latest
         ;;
     Linux)
-        curl -L -o oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v7.4.0/oauth2-proxy-v7.4.0.${OS_LOWER}-$(uname -m).tar.gz
-        tar -xzvf oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz -C $HOME/.local/interlink/bin/
-        rm oauth2-proxy-v7.4.0.$OS_LOWER-$(uname -m).tar.gz
+        echo "https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v7.4.0/oauth2-proxy-v7.4.0.${OS_LOWER}-$OSARCH.tar.gz"
+        curl -L -o oauth2-proxy-v7.4.0.$OS_LOWER-$OSARCH.tar.gz https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v7.4.0/oauth2-proxy-v7.4.0.${OS_LOWER}-$OSARCH.tar.gz
+        tar -xzvf oauth2-proxy-v7.4.0.$OS_LOWER-$OSARCH.tar.gz -C $HOME/.local/interlink/bin/
+        rm oauth2-proxy-v7.4.0.$OS_LOWER-$OSARCH.tar.gz
         ;;
     esac
 
@@ -58,8 +67,7 @@ install () {
 
 start () {
     ## Set oauth2 proxy config
-    #$HOME/.local/interlink/bin/oauth2-proxy-v7.4.0.linux-$(uname -m)/oauth2-proxy \
-    oauth2-proxy \
+    $HOME/.local/interlink/bin/oauth2-proxy-v7.4.0.linux-$OSARCH/oauth2-proxy \
         --client-id DUMMY \
         --client-secret DUMMY \
         --http-address http://0.0.0.0:$API_HTTP_PORT \

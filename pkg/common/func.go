@@ -72,6 +72,14 @@ func NewInterLinkConfig() {
 			}
 		}
 
+		if os.Getenv("SBATCHPATH") != "" {
+			InterLinkConfigInst.Sbatchpath = os.Getenv("SBATCHPATH")
+		}
+
+		if os.Getenv("SCANCELPATH") != "" {
+			InterLinkConfigInst.Scancelpath = os.Getenv("SCANCELPATH")
+		}
+
 		if os.Getenv("TSOCKS") != "" {
 			if os.Getenv("TSOCKS") != "true" && os.Getenv("TSOCKS") != "false" {
 				fmt.Println("export TSOCKS as true or false")

@@ -143,7 +143,7 @@ func produce_slurm_script(container v1.Container, metadata metav1.ObjectMeta, co
 func slurm_batch_submit(path string) string {
 	cmd := []string{path}
 	shell := exec2.ExecTask{
-		Command: "sbatch",
+		Command: commonIL.InterLinkConfigInst.Sbatchpath,
 		Args:    cmd,
 		Shell:   true,
 	}
@@ -178,7 +178,7 @@ func delete_container(container v1.Container) {
 	if err != nil {
 		log.Fatalln("Can't find job id of container")
 	}
-	_, err = exec.Command(commonIL.SCANCEL, fmt.Sprint(jid)).Output()
+	_, err = exec.Command(commonIL.InterLinkConfigInst.Scancelpath, fmt.Sprint(jid)).Output()
 	if err != nil {
 		log.Println("Could not delete job", jid)
 	} else {

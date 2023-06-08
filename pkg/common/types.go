@@ -8,8 +8,6 @@ const (
 	RUNNING = 0
 	STOP    = 1
 	UNKNOWN = 2
-	SBATCH  = "/usr/bin/sbatch"
-	SCANCEL = "/usr/bin/sbatch"
 )
 
 type PodName struct {
@@ -33,6 +31,8 @@ type Request struct {
 type InterLinkConfig struct {
 	Interlinkurl   string `yaml:"InterlinkURL"`
 	Sidecarurl     string `yaml:"SidecarURL"`
+	Sbatchpath     string `yaml:"SbatchPath"`
+	Scancelpath    string `yaml:"ScancelPath"`
 	Interlinkport  string `yaml:"InterlinkPort"`
 	Sidecarport    string
 	Sidecarservice string `yaml:"SidecarService"`

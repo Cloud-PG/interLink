@@ -48,7 +48,7 @@ Basically, that's the name we refer to each plug-in talking with the InterLink l
 - You are now running:
     - A Virtual Kubelet
     - The InterLink service
-    - A Slurm Sidecar
+    - A Docker Sidecar
 - Submit a YAML to your K8S cluster to test it. You could try:
     ```bash
     kubectl apply -f examples/interlink_mock/payloads/busyecho_k8s.yaml -n vk
@@ -144,6 +144,8 @@ Detailed explanation of the InterLink config file key values.
 - SidecarURL -> the URL to allow InterLink to communicate with the Sidecar module (docker, slurm, etc). Do not specify port here
 - InterlinkPort -> the Interlink listening port. InterLink and VK will communicate over this port.
 - SidecarService -> the sidecar service. At the moment, it can be only "slurm" or "docker". According to the specified service, InterLink will automatically set the listening port to 4000 for Docker and 4001 for Slurm. set $SIDECARPORT environment variable to specify a custom one
+- SbatchPath -> path to your Slurm's sbatch binary
+- ScancelPath -> path to your Slurm's scancel binary 
 - CommandPrefix -> here you can specify a prefix for the programmatically generated script (for the slurm plugin). Basically, if you want to run anything before the script itself, put it here.
 - Tsocks -> true or false values only. Enables or Disables the use of tsocks library to allow proxy networking. Only implemented for the Slurm sidecar at the moment.
 - TsocksPath -> path to your tsocks library.
@@ -158,5 +160,7 @@ Here's the complete list of every customizable environment variable. When specif
 - $SIDECARURL -> the URL to allow InterLink to communicate with the Sidecar module (docker, slurm, etc). Do not specify port here. Overwrites SidecarURL.
 - $SIDECARPORT -> the Sidecar listening port. Docker default is 4000, Slurm default is 4001.
 - $SIDECARSERVICE -> can be "docker" or "slurm" only (for the moment). If SIDECARPORT is not set, will set Sidecar Port in the code to default settings. Overwrites SidecarService.
+- SBATCHPATH -> path to your Slurm's sbatch binary. Overwrites SbatchPath.
+- SCANCELPATH -> path to your Slurm's scancel binary. Overwrites ScancelPath.
 - $TSOCKS -> true or false, to use tsocks library allowing proxy networking. Working on Slurm sidecar at the moment. Overwrites Tsocks.
 - $TSOCKSPATH -> path to your tsocks library. Overwrites TsocksPath.
