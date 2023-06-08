@@ -53,4 +53,4 @@ if __name__ == '__main__':
         except Exception as e:
             logging.warn("ERROR oidc get token: {}".format(e))
         
-        time.sleep(600)
+        time.sleep(1000)
