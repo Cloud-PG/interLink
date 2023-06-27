@@ -147,13 +147,13 @@ Remember to generate your token and set the VKTOKENFILE environment variable, ot
 
 ### :information_source: InterLink Config file
 Detailed explanation of the InterLink config file key values.
-- VKTokenFile -> path to a file containing your token fot OAuth2 proxy authentication.
 - InterlinkURL -> the URL to allow the Virtual Kubelet to contact the InterLink module. 
 - SidecarURL -> the URL to allow InterLink to communicate with the Sidecar module (docker, slurm, etc). Do not specify port here
 - InterlinkPort -> the Interlink listening port. InterLink and VK will communicate over this port.
 - SidecarService -> the sidecar service. At the moment, it can be only "slurm" or "docker". According to the specified service, InterLink will automatically set the listening port to 4000 for Docker and 4001 for Slurm. set $SIDECARPORT environment variable to specify a custom one
 - SbatchPath -> path to your Slurm's sbatch binary
 - ScancelPath -> path to your Slurm's scancel binary 
+- VKTokenFile -> path to a file containing your token fot OAuth2 proxy authentication.
 - CommandPrefix -> here you can specify a prefix for the programmatically generated script (for the slurm plugin). Basically, if you want to run anything before the script itself, put it here.
 - Tsocks -> true or false values only. Enables or Disables the use of tsocks library to allow proxy networking. Only implemented for the Slurm sidecar at the moment.
 - TsocksPath -> path to your tsocks library.
@@ -161,7 +161,6 @@ Detailed explanation of the InterLink config file key values.
 
 ### :information_source: Environment Variables list
 Here's the complete list of every customizable environment variable. When specified, it overwrites the listed key within the InterLink config file.
-- $VKTOKENFILE -> path to a file containing your token fot OAuth2 proxy authentication. Overwrites VKTokenFile.
 - $VK_CONFIG_PATH -> VK config file path
 - $INTERLINKURL -> the URL to allow the Virtual Kubelet to contact the InterLink module. Do not specify a port here. Overwrites InterlinkURL.
 - $INTERLINKPORT -> the InterLink listening port. InterLink and VK will communicate over this port. Overwrites InterlinkPort.
@@ -171,5 +170,6 @@ Here's the complete list of every customizable environment variable. When specif
 - $SIDECARSERVICE -> can be "docker" or "slurm" only (for the moment). If SIDECARPORT is not set, will set Sidecar Port in the code to default settings. Overwrites SidecarService.
 - $SBATCHPATH -> path to your Slurm's sbatch binary. Overwrites SbatchPath.
 - $SCANCELPATH -> path to your Slurm's scancel binary. Overwrites ScancelPath.
+- $VKTOKENFILE -> path to a file containing your token fot OAuth2 proxy authentication. Overwrites VKTokenFile.
 - $TSOCKS -> true or false, to use tsocks library allowing proxy networking. Working on Slurm sidecar at the moment. Overwrites Tsocks.
 - $TSOCKSPATH -> path to your tsocks library. Overwrites TsocksPath.
