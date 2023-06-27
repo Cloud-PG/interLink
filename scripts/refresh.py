@@ -34,7 +34,7 @@ if __name__ == '__main__':
                 "grant_type": "client_credentials",
                 "username": "not_needed",
                 "password": "not_needed",
-                "scope": "openid profile email iam",
+                "scope": "openid profile email iam groups",
                 "aud": audience
             }
             r = requests.post(iam_server+"token", data=request_data)

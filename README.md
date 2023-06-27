@@ -32,6 +32,7 @@ Basically, that's the name we refer to each plug-in talking with the InterLink l
 - [InterLink Config file](#information_source-interlink-config-file)
 - [Environment Variables list](#information_source-environment-variables-list)
 - [Usage](#question-usage)
+- [Authentication](#closed_lock_with_key-authentication)
 
 ## :fast_forward: Quick Start
 - Fastest way to start using interlink, is by deploying a VK in Kubernetes using the prebuilt image:
@@ -138,8 +139,15 @@ Note: remember to run VK, InterLink and a Sidecar before registering any Pod, ot
 #### InterLink / Sidecars
 InterLink and Sidecars do not want any argument (for the moment, at least), since any customization is performed through the InterLink config file or by setting the relative Environment Variables. Simply run the InterLink executable and a Sidecar one. Once at least one Pod will be registered, the InterLink will begin communicating with the VK on port 3000 and with Sidecars on ports 4000/4001 (4000 for Docker, 4001 for Slurm. Clearly, default port can be modified using the InterLink config file) through REST APIs.
 
+### :closed_lock_with_key: Authentication
+InterLink supports OAuth2 proxy authentication, allowing you to set up an authorized group (or managing single-user access) to access services. In order to use it, set the InterLinkPort field to 8080 and run InterLink executable by executing the docs/itwinctl.sh script. The provided script will run InterLink and Slurm sidecar binaries, but you can easily edit it to run another sidecar.
+First time running the script, run ```source itwinctl.sh install```, to download and setup the OAuth2 proxy.
+From now on, you can just use ```source itwinctl.sh start/stop/restart``` to manage your applications.
+Remember to generate your token and set the VKTOKENFILE environment variable, otherwise any connection between VK and InterLink will be refused with a 403 Fobidden reply.
+
 ### :information_source: InterLink Config file
 Detailed explanation of the InterLink config file key values.
+- VKTokenFile -> path to a file containing your token fot OAuth2 proxy authentication.
 - InterlinkURL -> the URL to allow the Virtual Kubelet to contact the InterLink module. 
 - SidecarURL -> the URL to allow InterLink to communicate with the Sidecar module (docker, slurm, etc). Do not specify port here
 - InterlinkPort -> the Interlink listening port. InterLink and VK will communicate over this port.
@@ -153,14 +161,15 @@ Detailed explanation of the InterLink config file key values.
 
 ### :information_source: Environment Variables list
 Here's the complete list of every customizable environment variable. When specified, it overwrites the listed key within the InterLink config file.
-- VK_CONFIG_PATH -> VK config file path
+- $VKTOKENFILE -> path to a file containing your token fot OAuth2 proxy authentication. Overwrites VKTokenFile.
+- $VK_CONFIG_PATH -> VK config file path
 - $INTERLINKURL -> the URL to allow the Virtual Kubelet to contact the InterLink module. Do not specify a port here. Overwrites InterlinkURL.
 - $INTERLINKPORT -> the InterLink listening port. InterLink and VK will communicate over this port. Overwrites InterlinkPort.
 - $INTERLINKCONFIGPATH -> your InterLink config file path. Default is ./kustomizations/InterLinkConfig.yaml
 - $SIDECARURL -> the URL to allow InterLink to communicate with the Sidecar module (docker, slurm, etc). Do not specify port here. Overwrites SidecarURL.
 - $SIDECARPORT -> the Sidecar listening port. Docker default is 4000, Slurm default is 4001.
 - $SIDECARSERVICE -> can be "docker" or "slurm" only (for the moment). If SIDECARPORT is not set, will set Sidecar Port in the code to default settings. Overwrites SidecarService.
-- SBATCHPATH -> path to your Slurm's sbatch binary. Overwrites SbatchPath.
-- SCANCELPATH -> path to your Slurm's scancel binary. Overwrites ScancelPath.
+- $SBATCHPATH -> path to your Slurm's sbatch binary. Overwrites SbatchPath.
+- $SCANCELPATH -> path to your Slurm's scancel binary. Overwrites ScancelPath.
 - $TSOCKS -> true or false, to use tsocks library allowing proxy networking. Working on Slurm sidecar at the moment. Overwrites Tsocks.
 - $TSOCKSPATH -> path to your tsocks library. Overwrites TsocksPath.

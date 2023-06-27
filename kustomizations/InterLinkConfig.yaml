@@ -1,7 +1,7 @@
-VKTokenFile: "/opt/interlink/token"
+VKTokenFile: "$HOME/interLink/token"
 InterlinkURL: "http://localhost"
 SidecarURL: "http://localhost"
-InterlinkPort: "3000"
+InterlinkPort: "8080"
 SidecarService: "slurm" #docker, slurm
 SbatchPath: "/usr/bin/sbatch"
 ScancelPath: "/usr/bin/scancel"
