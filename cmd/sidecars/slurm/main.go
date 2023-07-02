@@ -16,8 +16,9 @@ func main() {
 	mutex.HandleFunc("/status", slurm.StatusHandler)
 	mutex.HandleFunc("/submit", slurm.SubmitHandler)
 	mutex.HandleFunc("/stop", slurm.StopHandler)
+	mutex.HandleFunc("/genericCall", slurm.GenericCallHandler)
 
-	err := http.ListenAndServe(":4001", mutex)
+	err := http.ListenAndServe(":"+commonIL.InterLinkConfigInst.Sidecarport, mutex)
 	if err != nil {
 		log.Fatal(err)
 	}

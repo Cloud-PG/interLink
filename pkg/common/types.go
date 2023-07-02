@@ -28,19 +28,25 @@ type Request struct {
 	Pods map[string]*v1.Pod `json:"pods"`
 }
 
+type GenericRequestType struct {
+	Kind string `json:"kind"`
+	Body string `json:"body"`
+}
+
 type InterLinkConfig struct {
-	VKTokenFile    string `yaml:"VKTokenFile"`
-	Interlinkurl   string `yaml:"InterlinkURL"`
-	Sidecarurl     string `yaml:"SidecarURL"`
-	Sbatchpath     string `yaml:"SbatchPath"`
-	Scancelpath    string `yaml:"ScancelPath"`
-	Interlinkport  string `yaml:"InterlinkPort"`
-	Sidecarport    string
-	Sidecarservice string `yaml:"SidecarService"`
-	Commandprefix  string `yaml:"CommandPrefix"`
-	Tsocks         bool   `yaml:"Tsocks"`
-	Tsockspath     string `yaml:"TsocksPath"`
-	Tsocksconfig   string `yaml:"TsocksConfig"`
-	Tsockslogin    string `yaml:"TsocksLoginNode"`
-	set            bool
+	VKTokenFile            string `yaml:"VKTokenFile"`
+	Interlinkurl           string `yaml:"InterlinkURL"`
+	Sidecarurl             string `yaml:"SidecarURL"`
+	Sbatchpath             string `yaml:"SbatchPath"`
+	Scancelpath            string `yaml:"ScancelPath"`
+	Interlinkport          string `yaml:"InterlinkPort"`
+	Sidecarport            string
+	Sidecarservice         string `yaml:"SidecarService"`
+	Commandprefix          string `yaml:"CommandPrefix"`
+	GetConfigMapsOrSecrets bool   `yaml:"GetConfigMapsOrSecrets"`
+	Tsocks                 bool   `yaml:"Tsocks"`
+	Tsockspath             string `yaml:"TsocksPath"`
+	Tsocksconfig           string `yaml:"TsocksConfig"`
+	Tsockslogin            string `yaml:"TsocksLoginNode"`
+	set                    bool
 }

@@ -171,5 +171,6 @@ Here's the complete list of every customizable environment variable. When specif
 - $SBATCHPATH -> path to your Slurm's sbatch binary. Overwrites SbatchPath.
 - $SCANCELPATH -> path to your Slurm's scancel binary. Overwrites ScancelPath.
 - $VKTOKENFILE -> path to a file containing your token fot OAuth2 proxy authentication. Overwrites VKTokenFile.
+- $CUSTOMKUBECONF -> path to a custom kubeconfig to be used as a service agent
 - $TSOCKS -> true or false, to use tsocks library allowing proxy networking. Working on Slurm sidecar at the moment. Overwrites Tsocks.
 - $TSOCKSPATH -> path to your tsocks library. Overwrites TsocksPath.

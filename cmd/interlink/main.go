@@ -19,6 +19,7 @@ func main() {
 	mutex.HandleFunc("/status", interlink.StatusHandler)
 	mutex.HandleFunc("/create", interlink.CreateHandler)
 	mutex.HandleFunc("/delete", interlink.DeleteHandler)
+	mutex.HandleFunc("/genericCall", interlink.GenericCallHandler)
 
 	fmt.Println(commonIL.InterLinkConfigInst)
 

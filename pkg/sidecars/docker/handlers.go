@@ -2,9 +2,11 @@ package docker
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	exec "github.com/alexellis/go-execute/pkg/v1"
@@ -145,4 +147,22 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Write([]byte("All containers for submitted Pods have been deleted"))
 	}
+}
+
+func GenericCallHandler(w http.ResponseWriter, r *http.Request) {
+	bodyBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var req commonIL.GenericRequestType
+	json.Unmarshal(bodyBytes, &req)
+
+	switch req.Kind {
+	case "kubeconfig":
+		os.Setenv("KUBECONFIG", req.Body)
+		fmt.Println(os.Getenv("KUBECONFIG"))
+	}
+
+	w.Write([]byte("200"))
 }

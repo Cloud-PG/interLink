@@ -2,6 +2,7 @@ package slurm
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -42,6 +43,8 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 		for _, container := range containers {
 			log.Print("create_container")
 			commstr1 := []string{"singularity", "exec"}
+
+			prepareContainerData(container, pod) //get ConfigMaps and Secrets
 
 			envs := prepare_envs(container)
 			image := ""
@@ -160,4 +163,22 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	bodyBytes, _ = json.Marshal(resp)
 
 	w.Write(bodyBytes)
+}
+
+func GenericCallHandler(w http.ResponseWriter, r *http.Request) {
+	bodyBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var req commonIL.GenericRequestType
+	json.Unmarshal(bodyBytes, &req)
+
+	switch req.Kind {
+	case "kubeconfig":
+		os.Setenv("KUBECONFIG", req.Body)
+		fmt.Println(os.Getenv("KUBECONFIG"))
+	}
+
+	w.Write([]byte("200"))
 }

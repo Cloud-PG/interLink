@@ -16,8 +16,9 @@ func main() {
 	mutex.HandleFunc("/status", docker.StatusHandler)
 	mutex.HandleFunc("/create", docker.CreateHandler)
 	mutex.HandleFunc("/delete", docker.DeleteHandler)
+	mutex.HandleFunc("/genericCall", docker.GenericCallHandler)
 
-	err := http.ListenAndServe(":4000", mutex)
+	err := http.ListenAndServe(":"+commonIL.InterLinkConfigInst.Sidecarport, mutex)
 	if err != nil {
 		log.Fatal(err)
 	}

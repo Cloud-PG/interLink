@@ -81,6 +81,7 @@ func NewProvider(providerConfig, nodeName, operatingSystem string, internalIP st
 func loadConfig(providerConfig, nodeName string) (config VirtualKubeletConfig, err error) {
 
 	commonIL.NewInterLinkConfig()
+	commonIL.NewServiceAgent()
 
 	data, err := ioutil.ReadFile(providerConfig)
 	if err != nil {
