@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/CARV-ICS-FORTH/knoc/common"
 	exec2 "github.com/alexellis/go-execute/pkg/v1"
 	commonIL "github.com/cloud-pg/interlink/pkg/common"
 	v1 "k8s.io/api/core/v1"
@@ -195,7 +194,7 @@ func delete_container(container v1.Container) {
 }
 
 func prepareContainerData(container v1.Container, pod *v1.Pod) {
-	if commonIL.InterLinkConfigInst.GetConfigMapsOrSecrets {
+	if commonIL.InterLinkConfigInst.ExportPodData {
 		for _, mountSpec := range container.VolumeMounts {
 			var podVolumeSpec *v1.VolumeSource
 			podVolumeSpec = nil
@@ -238,7 +237,7 @@ func prepareContainerData(container v1.Container, pod *v1.Pod) {
 			} else if podVolumeSpec.Secret != nil {
 				svs := podVolumeSpec.Secret
 				//mode := podVolumeSpec.Secret.DefaultMode
-				podSecretDir := filepath.Join(common.PodVolRoot, pod.Namespace+"-"+string(pod.UID)+"/", mountSpec.Name)
+				podSecretDir := filepath.Join(".knoc/", pod.Namespace+"-"+string(pod.UID)+"/", mountSpec.Name)
 
 				secretLister := v1listers.NewSecretLister(indexer)
 				secret, err := v1listers.SecretLister.Secrets(secretLister, pod.Namespace).Get(svs.SecretName)
@@ -264,7 +263,7 @@ func prepareContainerData(container v1.Container, pod *v1.Pod) {
 				}
 			} else if podVolumeSpec.EmptyDir != nil {
 				// pod-global directory
-				edPath := filepath.Join(common.PodVolRoot, pod.Namespace+"-"+string(pod.UID)+"/"+mountSpec.Name)
+				edPath := filepath.Join(".knoc/", pod.Namespace+"-"+string(pod.UID)+"/"+mountSpec.Name)
 				// mounted for every container
 				cmd := exec.Command("mkdir", "-p "+edPath)
 				err := cmd.Run()
